@@ -145,7 +145,7 @@ class Shipping_Servientrega_WC_Plugin
             update_post_meta( $post_id, '_shipping_custom_price_product_smp', esc_attr( $custom_price_product ) );
     }
 
-    public static function createTable()
+    public static function create_table()
     {
         global $wpdb;
 
@@ -171,7 +171,8 @@ class Shipping_Servientrega_WC_Plugin
     {
         if ($hook !== 'woocommerce_page_wc-settings') return;
 
-        wp_enqueue_script( 'shipping_servientrega_wc_ss', shipping_servientrega_wc_ss()->plugin_url . 'assets/js/config.js', array( 'jquery' ), shipping_servientrega_wc_ss()->version, true );
+        wp_enqueue_script( 'shipping_servientrega_wc_ss', $this->plugin_url. 'assets/js/config.js', array( 'jquery' ), $this->version, true );
+        wp_enqueue_script( 'shipping_servientrega_wc_ss_sweet_alert', $this->plugin_url. 'assets/js/sweetalert2.js', array( 'jquery' ), $this->version, true );
     }
 
     public function servientrega_shipping_matriz()
@@ -218,7 +219,7 @@ class Shipping_Servientrega_WC_Plugin
                 $wpdb->query($sql);
             }
 
-            self::createTable();
+            self::create_table();
 
             foreach ($rows as $column){
 
