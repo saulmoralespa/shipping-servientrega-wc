@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Shipping Servientrega Woocommerce
  * Description: Shipping Servientrega Woocommerce is available for Colombia
- * Version: 1.0.1
+ * Version: 2.0.0
  * Author: Saul Morales Pacheco
  * Author URI: https://saulmoralespa.com
  * License: GNU General Public License v3.0
@@ -16,10 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if(!defined('SHIPPING_SERVIENTREGA_WC_SS_VERSION')){
-    define('SHIPPING_SERVIENTREGA_WC_SS_VERSION', '1.0.1');
+    define('SHIPPING_SERVIENTREGA_WC_SS_VERSION', '2.0.0');
 }
 
-add_action( 'plugins_loaded', 'shipping_servientrega_wc_ss_init', 0 );
+add_action( 'plugins_loaded', 'shipping_servientrega_wc_ss_init', 1 );
 
 function shipping_servientrega_wc_ss_init()
 {
@@ -104,12 +104,12 @@ function shipping_servientrega_wc_ss_requirements(){
         return false;
     }
 
-    if (!function_exists('curl_init')){
+    if ( ! extension_loaded( 'xml' ) ){
         if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
             add_action(
                 'admin_notices',
                 function() {
-                    shipping_servientrega_wc_ss_notices( 'Shipping Servientrega Woocommerce: Requiere la extensión cURL se encuentre instalada' );
+                    shipping_servientrega_wc_ss_notices( 'Shipping Servientrega Woocommerce: Requiere la extensión xml se encuentre instalada' );
                 }
             );
         }
@@ -181,4 +181,9 @@ function shipping_servientrega_wc_ss(){
     return $plugin;
 }
 
+function activate_shipping_servientrega_wc_ss(){
+    Shipping_Servientrega_WC_Plugin::createTable();
+}
+
+register_activation_hook( __FILE__, 'activate_shipping_servientrega_wc_ss' );
 add_action( 'woocommerce_product_options_shipping', array('Shipping_Servientrega_WC_Plugin', 'add_custom_shipping_option_to_products'));

@@ -8,21 +8,27 @@
 
 class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
 {
-    const URL_QUOTING_CITY = 'https://mobile.servientrega.com/Services/RateQuote/api/Cotizador/AutoCompleteCiudadesOrigen/1/2/es/';
-    const URL_QUOTING_RATES = 'https://mobile.servientrega.com/Services/RateQuote/api/Cotizador/Tarifas/';
 
     public function __construct($instance_id = 0)
     {
         parent::__construct($instance_id);
 
-        $this->id                 = 'shipping_servientrega_wc';
-        $this->instance_id        = absint( $instance_id );
-        $this->method_title       = __( 'Servientrega' );
+        $this->id = 'shipping_servientrega_wc';
+        $this->instance_id = absint( $instance_id );
+        $this->method_title = __( 'Servientrega' );
         $this->method_description = __( 'Servientrega empresa transportadora de Colombia' );
-        $this->title              = __( 'Servientrega' );
+        $this->title = __( 'Servientrega' );
+
+        $wc_main_settings = get_option('woocommerce_servientrega_shipping_settings');
+
         $this->debug = $this->get_option( 'debug' );
-        $this->isTest = (bool)$this->get_option( 'environment' );
-        $this->address_sender     = $this->get_option('address_sender');
+        $this->isTest = isset($wc_main_settings['servientrega_production']) ? $wc_main_settings['servientrega_production'] : false;
+        $this->user = isset($wc_main_settings['servientrega_user']) ? $wc_main_settings['servientrega_user'] : '';
+        $this->password = isset($wc_main_settings['servientrega_password']) ? $wc_main_settings['servientrega_password'] : '';
+        $this->billing_code = isset($wc_main_settings['servientrega_billing_code']) ? $wc_main_settings['servientrega_billing_code'] : '';
+        $this->way_pay = isset($wc_main_settings['servientrega_agreement_pay']) ? $wc_main_settings['servientrega_agreement_pay'] : '';
+        $this->address_sender = isset($wc_main_settings['servientrega_address_sender']) ? $wc_main_settings['servientrega_address_sender'] : '';
+        $this->rates_servientrega = isset($wc_main_settings['rate']) ? $wc_main_settings['rate'] : [];
 
         $this->supports = array(
             'settings',
@@ -34,7 +40,17 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
 
     public function is_available($package)
     {
-        return parent::is_available($package);
+
+        $db = Shipping_Servientrega_WC::getDataShipping('2');
+
+        return parent::is_available($package) &&
+            $this->user &&
+            $this->password &&
+            $this->billing_code &&
+            $this->way_pay &&
+            $this->address_sender &&
+            !empty($this->rates_servientrega) &&
+            !empty($db);
     }
 
     /**
@@ -51,7 +67,41 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
 
     public function init_form_fields()
     {
-        $this->form_fields = include( dirname( __FILE__ ) . '/admin/settings.php' );
+        if(isset($_GET['page']) && $_GET['page'] === 'wc-settings')
+            $this->form_fields = include( dirname( __FILE__ ) . '/admin/settings.php' );
+    }
+
+    public function generate_servientrega_tab_box_html()
+    {
+        include( dirname( __FILE__ ) . '/admin/tabs.php' );
+    }
+
+    public function servientrega_shipping_page_tabs($current = 'general')
+    {
+        $activation_check = get_option('dhl_activation_status');
+        if(!empty($activation_check) && $activation_check === 'active')
+        {
+            $acivated_tab_html =  "<small style='color:green;font-size:xx-small;'>(Activated)</small>";
+
+        }
+        else
+        {
+            $acivated_tab_html =  "<small style='color:red;font-size:xx-small;'>(Activate)</small>";
+        }
+        $tabs = array(
+            'general' => __("General"),
+            'rates' => __("Tiempo de entrega, Liquidación y trayectos"),
+            'packing' => __("Matriz Mercancia Premier - Terrestre"),
+            //'licence' => __("License ".$acivated_tab_html, 'wf-shipping-dhl')
+        );
+        $html = '<h2 class="nav-tab-wrapper">';
+        foreach ($tabs as $tab => $name) {
+            $class = ($tab == $current) ? 'nav-tab-active' : '';
+            $style = ($tab == $current) ? 'border-bottom: 1px solid transparent !important;' : '';
+            $html .= '<a style="text-decoration:none !important;' . $style . '" class="nav-tab ' . $class . '" href="?page=wc-settings&tab=shipping&section=shipping_servientrega_wc&subtab=' . $tab . '">' . $name . '</a>';
+        }
+        $html .= '</h2>';
+        return $html;
     }
 
     public function admin_options()
@@ -73,17 +123,14 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
         $country = $package['destination']['country'];
         $state_destination = $package['destination']['state'];
         $city_destination  = $package['destination']['city'];
-        $city_destination = $this->cleanString($city_destination);
+        $city_destination = Shipping_Servientrega_WC::clean_string($city_destination);
         $items = $woocommerce->cart->get_cart();
 
         if($country !== 'CO')
             return apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
 
-        $countries_obj = new WC_Countries();
-        $country_states_array = $countries_obj->get_states();
-        $name_state_destination = $country_states_array[$country][$state_destination];
-        $name_state_destination = $this->cleanString($name_state_destination);
-        $name_state_destination = $this->shortNameLocation($name_state_destination);
+        $name_state_destination = Shipping_Servientrega_WC::name_destination($country, $state_destination);
+
         $origin = $this->address_sender;
         $address_destine = "$city_destination - $name_state_destination";
 
@@ -97,54 +144,76 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
         if(!$destine)
             return apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
 
-        $total_valorization = 0;
-        $high = 0;
-        $length = 0;
-        $width = 0;
-        $weight = 0;
+        $matrix_data = Shipping_Servientrega_WC::getDataShipping($destine);
 
-        foreach ( $items as $item => $values ) {
-            $_product_id = $values['data']->get_id();
-            $_product = wc_get_product( $_product_id );
+        if (empty($matrix_data))
+            return apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
 
-            if ( $_product->get_weight() && $_product->get_length()
-                && $_product->get_width() && $_product->get_height() ) {
+        $data_products = Shipping_Servientrega_WC::dimensions_weight($items);
 
-                $custom_price_product = get_post_meta($_product_id, '_shipping_custom_price_product_smp', true);
-                $total_valorization += $custom_price_product ? $custom_price_product : $_product->get_price();
+        $physical_restriction = json_decode($matrix_data['restriccion_fisica'], true);
 
-                $quantity = $values['quantity'];
+        if(!empty($physical_restriction))
+            if(!$this->check_restriction($data_products, $physical_restriction)){
+                shipping_servientrega_wc_ss()->log("Error restricción fisica:");
+                shipping_servientrega_wc_ss()->log($data_products);
+                return apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
+            }
 
-                $total_valorization = $total_valorization * $quantity;
+        $rates = $this->rates_servientrega;
+        $weight = $rates['weight'];
+        $journey = $matrix_data['tipo_trayecto'];
 
-                $high += $quantity > 1 ? $_product->get_height() * $quantity : $_product->get_height();
-                $length += (int)$_product->get_length();
-                $width += (int)$_product->get_width();
-                $weight += $quantity > 1 ? $_product->get_weight() * $quantity : $_product->get_weight();
+        $total_weight_products = $data_products['weight'];
 
-            } else {
+        $key_data = [];
+
+        foreach ($weight as $key => $value){
+
+            $key_data = [$key];
+
+            $value = (int)$value;
+
+            if(($value === $total_weight_products) || ($value > $total_weight_products)){
                 break;
+            }elseif ($total_weight_products > $value) {
+                $key_data = [$key, $value];
             }
         }
 
-        $path_url = "$origin/$destine/$length/$high/$width/$weight/$total_valorization/2/es";
+        $rate_key = $key_data[0];
 
-        try{
-            $data = $this->getDataQuote($path_url);
-        }catch (\Exception $exception){
-            shipping_servientrega_wc_ss()->log($exception->getMessage());
-            return apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
+        $journeyCost = (int)$rates[$journey][$rate_key];
+
+        if (count($key_data) > 1){
+            $weight = $weight[$rate_key];
+
+            $remaining = $total_weight_products - $weight;
+
+            //additionals kilos
+
+            $additionalCost = (int)$rates['additional'][$journey];
+
+            $additionalCost = $additionalCost * $remaining;
+
+            $journeyCost += $additionalCost;
+
         }
 
         $rate       = array(
             'id'      => $this->id,
             'label'   => $this->title,
-            'cost'    => $data['Results'][0]['tarifa'],
+            'cost'    => $journeyCost,
             'package' => $package,
         );
-        add_filter( 'woocommerce_cart_shipping_method_full_label', function($label) use($data) {
+
+        $delivery_commercial = (int)$matrix_data['tiempo_entrega_comercial'];
+        $delivery_days = $delivery_commercial > 1 ? "$delivery_commercial días" : "$delivery_commercial día";
+
+        add_filter( 'woocommerce_cart_shipping_method_full_label', function($label) use($delivery_days) {
+
             $label .= "<br /><small>";
-            $label .= "Estimación de entrega: {$data['Results'][0]['duracion']} horas";
+            $label .= "Estimación de entrega: $delivery_days";
             $label .= '</small>';
             return $label;
         }, 1);
@@ -153,46 +222,17 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
 
     }
 
-    /**
-     * @param $location
-     * @return array|bool|mixed|object|string|null
-     * @throws Exception
-     */
-    public function getDataQuote($location)
+    public function check_restriction($data_products, $physical_restriction)
     {
+       if ($data_products['length'] > $physical_restriction['largo'])
+           return false;
+       if ($data_products['high'] > $physical_restriction['alto'])
+           return false;
+       if ($data_products['width'] > $physical_restriction['ancho'])
+           return false;
+       if ($data_products['weight'] > $physical_restriction['peso'])
+           return false;
 
-        $url =  self::URL_QUOTING_RATES . $location;
-
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$this->isTest);
-
-        $result = curl_exec($ch);
-
-        if (curl_errno($ch))
-            throw new  \Exception(curl_error($ch));
-
-        curl_close ($ch);
-
-        $result = json_decode($result, true);
-
-        return $result;
-    }
-
-    public function cleanString($string)
-    {
-        $not_permitted = array ("á","é","í","ó","ú","Á","É","Í","Ó","Ú","ñ","À","Ã","Ì","Ò","Ù","Ã™","Ã ","Ã¨","Ã¬","Ã²","Ã¹","ç","Ç","Ã¢","ê","Ã®","Ã´","Ã»","Ã‚","ÃŠ","ÃŽ","Ã”","Ã›","ü","Ã¶","Ã–","Ã¯","Ã¤","«","Ò","Ã","Ã„","Ã‹");
-        $permitted = array ("a","e","i","o","u","A","E","I","O","U","n","N","A","E","I","O","U","a","e","i","o","u","c","C","a","e","i","o","u","A","E","I","O","U","u","o","O","i","a","e","U","I","A","E");
-        $text = str_replace($not_permitted, $permitted, $string);
-        return $text;
-    }
-
-    public function shortNameLocation($name_location)
-    {
-        if ( 'Valle del Cauca' === $name_location )
-            $name_location =  'Valle';
-        return $name_location;
+       return true;
     }
 }

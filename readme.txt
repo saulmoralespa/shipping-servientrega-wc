@@ -4,8 +4,8 @@ Donate link: https://saulmoralespa.com/
 Tags: commerce, e-commerce, commerce, wordpress ecommerce, store, sales, sell, shop, shopping, cart, checkout, configurable, Colombia, servientrega
 Requires at least: 5.0
 Tested up to: 5.2
-Requires PHP: 5.6.0
-Stable tag: 1.0.1
+Requires PHP: 7.1
+Stable tag: 2.0.0
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -24,7 +24,6 @@ seguimiento de despachos
 4. Busque por el nombre **Shipping Servientrega Woocommerce**
 5. Instale y active el plugin y siga el proceso de configuración.
 6. Establezca los detalles del envío del producto, ver captura de pantalla.
-
 
 == Frequently Asked Questions ==
 
@@ -50,6 +49,12 @@ La reciente versión esta limitada podrá adquirir la paga con todas las funcion
 
 = 1.0.1 =
 * Initial stable release
+= 1.0.2 =
+* Added generate guide
+= 1.0.3 =
+* Fixed SSL tracing
+= 2.0.0 =
+* Updated to upload information shipping costs
 
 == Additional Info ==
 **Contribute** [repository on github](https://github.com/saulmoralespa/shipping-servientrega-wc)

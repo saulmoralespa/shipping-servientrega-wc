@@ -1,0 +1,177 @@
+<?php
+
+use Servientrega\WebService;
+
+
+$this->init_settings();
+global $woocommerce;
+$wc_main_settings = array();
+if(isset($_POST['servientrega_validate_credentials']))
+{
+    $servientrega_user        = $_POST['servientrega_user'];
+    $servientrega_password       = $_POST['servientrega_password'];
+    $servientrega_billing_code = $_POST['servientrega_billing_code'];
+    $test_mode = (isset($_POST['servientrega_production']) && $_POST['servientrega_production'] ==='yes') ? true : false;
+
+    $wc_main_settings                   = get_option('woocommerce_servientrega_shipping_settings');
+    $wc_main_settings['production']     = $test_mode;
+    $wc_main_settings['servientrega_user'] = (isset($_POST['servientrega_user'])) ? sanitize_text_field($_POST['servientrega_user']) : 'testajagroup';
+    $wc_main_settings['servientrega_password']        = (isset($_POST['servientrega_password'])) ? sanitize_text_field($_POST['servientrega_password']) : 'Colombia1';
+    $wc_main_settings['servientrega_billing_code']  = (isset($_POST['servientrega_billing_code'])) ? sanitize_text_field($_POST['servientrega_billing_code']) : 'Cargue SMP';
+
+    update_option('woocommerce_servientrega_shipping_settings',$wc_main_settings);
+
+    servientrega_validate_credentials($test_mode,$servientrega_user,$servientrega_password,$servientrega_billing_code);
+}
+
+function servientrega_validate_credentials($test_mode,$servientrega_user,$servientrega_password,$servientrega_billing_code)
+{
+
+    if(strpos($servientrega_billing_code, 'SER') === false){
+        update_option('servientrega_validation_error','<small style="color:red">Revise que este ingresando el Código de facturación correctamente</small>');
+        $wc_main_settings = get_option('woocommerce_servientrega_shipping_settings');
+        $wc_main_settings['servientrega_billing_code'] = '';
+        update_option('woocommerce_servientrega_shipping_settings',$wc_main_settings);
+        return false;
+    }
+
+    try{
+        $servientrega = new WebService($servientrega_user, $servientrega_password, $servientrega_billing_code, get_bloginfo('name') );
+        $params = [
+            'num_Guia' => '292710965',
+            'num_GuiaFinal' => '292710965'
+        ];
+        $servientrega->AnularGuias($params);
+    }catch (Exception $exception){
+        update_option('servientrega_validation_error', '<small style="color:red">' . $exception->getMessage() . '</small>');
+        return false;
+    }
+
+    update_option('servientrega_validation_error', '');
+    return true;
+
+}
+
+if(isset($_POST['servientrega_genaral_save_changes_button']))
+{
+
+    $servientrega_user = $_POST['servientrega_user'];
+    $servientrega_password = $_POST['servientrega_password'];
+    $servientrega_billing_code = $_POST['servientrega_billing_code'];
+    $test_mode = (isset($_POST['servientrega_production']) && $_POST['servientrega_production'] ==='yes') ? true : false;
+
+
+    $wc_main_settings = get_option('woocommerce_servientrega_shipping_settings');
+    $wc_main_settings['production']     = $test_mode;
+    $wc_main_settings['servientrega_user'] = (isset($_POST['servientrega_user'])) ? sanitize_text_field($_POST['servientrega_user']) : 'testajagroup';
+    $wc_main_settings['servientrega_password']        = (isset($_POST['servientrega_password'])) ? sanitize_text_field($_POST['servientrega_password']) : 'Colombia1';
+    $wc_main_settings['servientrega_billing_code']  = (isset($_POST['servientrega_billing_code'])) ? sanitize_text_field($_POST['servientrega_billing_code']) : 'Cargue SMP';
+    $wc_main_settings['servientrega_address_sender'] = (isset($_POST['servientrega_address_sender'])) ? sanitize_text_field($_POST['servientrega_address_sender']) : '';
+    $wc_main_settings['servientrega_agreement_pay'] = (isset($_POST['servientrega_agreement_pay'])) ? sanitize_text_field($_POST['servientrega_agreement_pay']) : '';
+
+
+    servientrega_validate_credentials($test_mode,$servientrega_user,$servientrega_password,$servientrega_billing_code);
+    
+    update_option('woocommerce_servientrega_shipping_settings',$wc_main_settings);
+}
+
+$general_settings = get_option('woocommerce_servientrega_shipping_settings');
+$general_settings = empty($general_settings) ? array() : $general_settings;
+$validation = get_option('wf_dhl_shipping_validation_data');
+
+$agreementPay = [
+    2    => __( 'Crédito'),
+    4 => __( 'Pago contra entrega')
+];
+
+$address_sender = include dirname(__FILE__) . '/../cities.php';
+
+$htmlGeneral = '<img style="float:right;" src="' . shipping_servientrega_wc_ss()->assets . trailingslashit('img') . 'servientrega.png' . '" width="80" height="80" />';
+
+$htmlGeneral .= '
+<table>
+    <tr valign="top">
+        <td style="width:25%;font-weight:bold;">
+            <label for="servientrega_production">' .  __('Información cuenta de Servientrega') . '</label><span class="woocommerce-help-tip" data-tip="' . __('La información suministrada por Servientrega, relacionada con el acuerdo como Usuario, Contraseña, Código de Facturación, Forma de pago') . '"></span>
+        </td>' . $this->get_option('woocommerce_servientrega_production') . '
+        <td scope="row" class="titledesc" style="display: block;margin-bottom: 20px;margin-top: 3px;">
+            <fieldset style="padding:3px;">';
+                if(isset($general_settings['production']) && $general_settings['production'] === true)
+                {
+                    $htmlGeneral .= '<input class="input-text regular-input " type="radio" name="servientrega_production"  id="servientrega_production" ';
+                    $disable = ($validation === 'done') ? 'disabled="true" ' : ' ';
+                    $htmlGeneral .= $disable;  $htmlGeneral .= 'value="no">' . __('Pruebas');
+                    $htmlGeneral .= '<input class="input-text regular-input " type="radio"  name="servientrega_production" checked="true" id="servientrega_production" ';
+                    $disable = ($validation === 'done') ? 'disabled="true" ' : ' ';
+                    $htmlGeneral .= $disable; $htmlGeneral .= 'value="yes">' . __('Producción');
+                 }else {
+                    $htmlGeneral .= '<input class="input-text regular-input" type="radio" name="servientrega_production" checked="true" id="servientrega_production" ';
+                    $disable = ($validation === 'done') ? 'disabled="true" ' : ' ';
+                    $htmlGeneral .= $disable;
+                    $htmlGeneral .= 'value="no">' . __('Pruebas');
+                    $htmlGeneral .= '<input class="input-text regular-input" type="radio" name="servientrega_production" id="servientrega_production" ';
+                    $disable = ($validation === 'done') ? 'disabled="true" ' : ' ';
+                    $htmlGeneral .= $disable;
+                    $htmlGeneral .= 'value="yes">' . __('Producción') . '</br></fieldset>';
+                }
+            $htmlGeneral .= '<fieldset style="padding:3px;">
+                <input class="input-text regular-input" required type="text" name="servientrega_user" id="servientrega_user" ';
+                $disable = ($validation === 'done') ? 'disabled="true" ' : ' ';
+                $htmlGeneral .= $disable; $htmlGeneral .= 'value="';
+                $value = (isset($general_settings['servientrega_user'])) ? $general_settings['servientrega_user'] : 'testajagroup';
+                $htmlGeneral .= "$value\" ";
+                $htmlGeneral .= 'placeholder="testajagroup"> <label for="servientrega_user">' . __('Usuario') . '</label> <span class="woocommerce-help-tip" data-tip="' . __('El usario con el que ingresa al SISCLINET') . '"></span>
+            </fieldset>';
+            $htmlGeneral .= '<fieldset style="padding:3px;">
+                <input class="input-text regular-input" required type="password" name="servientrega_password" id="servientrega_password" ';
+            $disable =  ($validation === 'done') ? 'disabled="true" ' : ' ';
+            $htmlGeneral .= $disable;
+            $htmlGeneral .= 'value="';
+            $value = (isset($general_settings['servientrega_password'])) ? $general_settings['servientrega_password'] : 'Colombia1';
+            $htmlGeneral .= "$value\">"; $htmlGeneral .= '<label for="servientrega_password">' . __('Contraseña') .'</label> <span class="woocommerce-help-tip" data-tip="' . __('La contraseña con la que ingresa SISCLINET') . '"></span>
+            </fieldset>';
+            $htmlGeneral .= '<fieldset style="padding:3px;">
+                <input class="input-text regular-input" required type="text" name="servientrega_billing_code" id="servientrega_billing_code "'; $disable =  ($validation === 'done') ? 'disabled="true "' : ' '; $htmlGeneral .= $disable;  $htmlGeneral .= 'value= "'; $value = (isset($general_settings['servientrega_billing_code'])) ? $general_settings['servientrega_billing_code'] : 'SER408'; $htmlGeneral .= "$value\">"; $htmlGeneral .= '<label for="servientrega_billing_code">' . __('Código de Facturación') . '</label> <span class="woocommerce-help-tip" data-tip="' . __('Código de Facturación lo encuentro dentro del panel de SISCLINET') . '"></span>
+            </fieldset>';
+            $htmlGeneral .= get_option('servientrega_validation_error') . '<fieldset style="padding:3px;">
+                <input type="submit" value="Validar Credenciales" class="button button-secondary" name="servientrega_validate_credentials">
+            </fieldset>
+        </td>
+    </tr>
+    <tr valign="top">
+        <td style="width:25%;font-weight:bold;">
+            <label for="servientrega_address_sender">' . __('Ciudad Remitente') . '</label><span class="woocommerce-help-tip" data-tip="' . __('La ciudad de Origen conforme el acuerdo con Servientrega') . '"></span>
+        </td>
+        <td scope="row" class="titledesc" style="display: block;margin-bottom: 20px;margin-top: 3px;">';
+        $htmlGeneral .= '<fieldset style="padding:3px;">
+                        <select class="wc-enhanced-select" name="servientrega_address_sender" id="servientrega_address_sender">';
+        $htmlGeneral .= '<option value="">Seleccione ciudad de origen</option>';
+        foreach ($address_sender as $key => $address):
+            $selected = isset($general_settings['servientrega_address_sender']) && $general_settings['servientrega_address_sender'] === (string)$key ? 'selected' : '';
+            $htmlGeneral .= "<option value='{$key}' $selected>{$address}</option>";
+        endforeach;
+        $htmlGeneral .= '</select>
+            </fieldset>
+       </td>
+    </tr>';
+    $htmlGeneral .= '<tr valign="top">
+        <td style="width:25%;font-weight:bold;">
+            <label for="servientrega_agreement_pay">' . __('Forma de pago') . '</label><span class="woocommerce-help-tip" data-tip="' . __('El acuerdo que manejara los pagos de los envíos') . '"></span>
+        </td>
+        <td scope="row" class="titledesc" style="display: block;margin-bottom: 20px;margin-top: 3px;">
+            <fieldset style="padding:3px;">
+                <select class="wc-enhanced-select" name="servientrega_agreement_pay" id="servientrega_agreement_pay">';
+                    foreach ($agreementPay as $key => $value):
+                        $selected = isset($general_settings['servientrega_agreement_pay']) && $general_settings['servientrega_agreement_pay'] === (string)$key ? 'selected' : '';
+                        $htmlGeneral .= "<option value='{$key}' $selected>{$value}</option>";
+                    endforeach;
+                $htmlGeneral .= '</select>
+            </fieldset>
+        </td>';
+    $htmlGeneral .= '<tr>
+        <td colspan="2" style="text-align:center;">
+            <button type="submit" class="button button-primary" name="servientrega_genaral_save_changes_button">' . __('Guardar cambios') . '</button>
+        </td>
+    </tr>';
+
+return $htmlGeneral;
