@@ -212,8 +212,11 @@ class Shipping_Servientrega_WC_Plugin
 
             global $wpdb;
             $table_name = $wpdb->prefix . 'shipping_servientrega_matriz';
-            $sql = "DELETE FROM $table_name";
-            $wpdb->query($sql);
+
+            if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) === $table_name ){
+                $sql = "DELETE FROM $table_name";
+                $wpdb->query($sql);
+            }
 
             self::createTable();
 
