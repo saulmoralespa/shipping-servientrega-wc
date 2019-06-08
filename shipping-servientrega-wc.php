@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Shipping Servientrega Woocommerce
  * Description: Shipping Servientrega Woocommerce is available for Colombia
- * Version: 2.0.0
+ * Version: 2.0.1
  * Author: Saul Morales Pacheco
  * Author URI: https://saulmoralespa.com
  * License: GNU General Public License v3.0
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if(!defined('SHIPPING_SERVIENTREGA_WC_SS_VERSION')){
-    define('SHIPPING_SERVIENTREGA_WC_SS_VERSION', '2.0.0');
+    define('SHIPPING_SERVIENTREGA_WC_SS_VERSION', '2.0.1');
 }
 
 add_action( 'plugins_loaded', 'shipping_servientrega_wc_ss_init', 1 );
@@ -181,9 +181,4 @@ function shipping_servientrega_wc_ss(){
     return $plugin;
 }
 
-function activate_shipping_servientrega_wc_ss(){
-    Shipping_Servientrega_WC_Plugin::createTable();
-}
-
-register_activation_hook( __FILE__, 'activate_shipping_servientrega_wc_ss' );
 add_action( 'woocommerce_product_options_shipping', array('Shipping_Servientrega_WC_Plugin', 'add_custom_shipping_option_to_products'));
