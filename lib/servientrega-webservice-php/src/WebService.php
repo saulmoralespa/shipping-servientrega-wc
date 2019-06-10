@@ -158,6 +158,28 @@ class WebService
 
 
     /**
+     * @return array
+     */
+    private function optionsSoap()
+    {
+        return [
+            "trace" => true,
+            "soap_version"  => SOAP_1_2,
+            "connection_timeout"=> 200,
+            "encoding"=> "utf-8",
+            'stream_context' => stream_context_create([
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                ]
+            ]),
+            'cache_wsdl' => WSDL_CACHE_NONE
+        ];
+    }
+
+
+    /**
      * @param $name_function
      * @param array $params
      * @return mixed
@@ -170,11 +192,11 @@ class WebService
 
             if (!$tracking){
                 $headerData = strpos($name_function, 'Contrasena') !== false ? '' : $this->paramsHeader();
-                $client = new \SoapClient(self::URL_GUIDES);
+                $client = new \SoapClient(self::URL_GUIDES, $this->optionsSoap());
                 $header = new \SoapHeader(self::NAMESPACE_GUIDES, 'AuthHeader', $headerData);
                 $client->__setSoapHeaders($header);
             }else{
-                $client = new \SoapClient(self::URL_TRACKING_DISPATCHES);
+                $client = new \SoapClient(self::URL_TRACKING_DISPATCHES, $this->optionsSoap());
             }
 
             $result = $client->$name_function($params);
