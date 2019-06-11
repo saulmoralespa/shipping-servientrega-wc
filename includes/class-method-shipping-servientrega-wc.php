@@ -26,6 +26,7 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
         $this->user = isset($wc_main_settings['servientrega_user']) ? $wc_main_settings['servientrega_user'] : '';
         $this->password = isset($wc_main_settings['servientrega_password']) ? $wc_main_settings['servientrega_password'] : '';
         $this->billing_code = isset($wc_main_settings['servientrega_billing_code']) ? $wc_main_settings['servientrega_billing_code'] : '';
+        $this->id_client = isset($wc_main_settings['servientrega_id_client']) ? $wc_main_settings['servientrega_id_client'] : '';
         $this->way_pay = isset($wc_main_settings['servientrega_agreement_pay']) ? $wc_main_settings['servientrega_agreement_pay'] : '';
         $this->address_sender = isset($wc_main_settings['servientrega_address_sender']) ? $wc_main_settings['servientrega_address_sender'] : '';
         $this->rates_servientrega = isset($wc_main_settings['rate']) ? $wc_main_settings['rate'] : [];
@@ -47,6 +48,7 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
             $this->user &&
             $this->password &&
             $this->billing_code &&
+            $this->id_client &&
             $this->way_pay &&
             $this->address_sender &&
             !empty($this->rates_servientrega) &&

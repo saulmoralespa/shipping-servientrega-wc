@@ -202,10 +202,12 @@ class Shipping_Servientrega_WC_Plugin
             $rows = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
             $data = array_shift($rows);
 
-            if (count($data) !== 11){
+            $keysColumns = $this->columns($data);
+
+            if (empty($keysColumns)){
                 $result = [
                     'status' => false,
-                    'message' => 'El excel debe tener 11 columnas de A - K'
+                    'message' => 'El excel debe tener las columnas ID_CIUDAD_DESTINO, TIEMPOENTREGA_COMERCIAL, TIPOTRAYECTO, RESTRICCION_FISICA'
                 ];
 
                 wp_send_json($result);
@@ -226,10 +228,10 @@ class Shipping_Servientrega_WC_Plugin
                 $wpdb->insert(
                     $table_name,
                     [
-                        'id_ciudad_destino' => (int)$column['D'],
-                        'tiempo_entrega_comercial' => $column['I'],
-                        'tipo_trayecto' => $this->singleWord($column['J']),
-                        'restriccion_fisica' => $this->convertJson($column['K'])
+                        'id_ciudad_destino' => (int)$column[$keysColumns[0]],
+                        'tiempo_entrega_comercial' => $column[$keysColumns[1]],
+                        'tipo_trayecto' => $this->singleWord($column[$keysColumns[2]]),
+                        'restriccion_fisica' => $this->convertJson($column[$keysColumns[3]])
                     ]
                 );
             }
@@ -245,6 +247,30 @@ class Shipping_Servientrega_WC_Plugin
         update_option('woocommerce_servientrega_shipping_settings', $wc_main_settings);
 
         wp_send_json($result);
+
+    }
+
+    public function columns($data)
+    {
+        $columns = [];
+
+        if (!$id_ciudad_destino = array_keys($data, 'ID_CIUDAD_DESTINO'))
+            return [];
+        $columns[] = $id_ciudad_destino[0];
+
+        if (!$tiempo_entrega_comercial = array_keys($data, 'TIEMPOENTREGA_COMERCIAL'))
+            return [];
+        $columns[] = $tiempo_entrega_comercial[0];
+
+        if (!$tipo_trayecto = array_keys($data, 'TIPOTRAYECTO'))
+            return [];
+        $columns[] = $tipo_trayecto[0];
+
+        if (!$restriccion_fisica = array_keys($data, 'RESTRICCION_FISICA'))
+            return [];
+        $columns[] = $restriccion_fisica[0];
+
+        return $columns;
 
     }
 

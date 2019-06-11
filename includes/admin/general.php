@@ -2,7 +2,6 @@
 
 use Servientrega\WebService;
 
-
 $this->init_settings();
 global $woocommerce;
 $wc_main_settings = array();
@@ -11,6 +10,7 @@ if(isset($_POST['servientrega_validate_credentials']))
     $servientrega_user        = $_POST['servientrega_user'];
     $servientrega_password       = $_POST['servientrega_password'];
     $servientrega_billing_code = $_POST['servientrega_billing_code'];
+    $servientrega_id_client = $_POST['servientrega_id_client'];
     $test_mode = (isset($_POST['servientrega_production']) && $_POST['servientrega_production'] ==='yes') ? true : false;
 
     $wc_main_settings                   = get_option('woocommerce_servientrega_shipping_settings');
@@ -18,13 +18,14 @@ if(isset($_POST['servientrega_validate_credentials']))
     $wc_main_settings['servientrega_user'] = (isset($_POST['servientrega_user'])) ? sanitize_text_field($_POST['servientrega_user']) : 'testajagroup';
     $wc_main_settings['servientrega_password']        = (isset($_POST['servientrega_password'])) ? sanitize_text_field($_POST['servientrega_password']) : 'Colombia1';
     $wc_main_settings['servientrega_billing_code']  = (isset($_POST['servientrega_billing_code'])) ? sanitize_text_field($_POST['servientrega_billing_code']) : 'Cargue SMP';
+    $wc_main_settings['servientrega_id_client'] = (isset($_POST['servientrega_id_client'])) ? sanitize_text_field($_POST['servientrega_id_client']) : '900917801';
 
     update_option('woocommerce_servientrega_shipping_settings',$wc_main_settings);
 
-    servientrega_validate_credentials($test_mode,$servientrega_user,$servientrega_password,$servientrega_billing_code);
+    servientrega_validate_credentials($test_mode,$servientrega_user,$servientrega_password,$servientrega_billing_code,$servientrega_id_client);
 }
 
-function servientrega_validate_credentials($test_mode,$servientrega_user,$servientrega_password,$servientrega_billing_code)
+function servientrega_validate_credentials($test_mode,$servientrega_user,$servientrega_password,$servientrega_billing_code,$servientrega_id_client)
 {
 
     if(strpos($servientrega_billing_code, 'SER') === false){
@@ -36,7 +37,7 @@ function servientrega_validate_credentials($test_mode,$servientrega_user,$servie
     }
 
     try{
-        $servientrega = new WebService($servientrega_user, $servientrega_password, $servientrega_billing_code, get_bloginfo('name') );
+        $servientrega = new WebService($servientrega_user, $servientrega_password, $servientrega_billing_code, $servientrega_id_client, get_bloginfo('name') );
         $params = [
             'num_Guia' => '292710965',
             'num_GuiaFinal' => '292710965'
@@ -58,6 +59,7 @@ if(isset($_POST['servientrega_genaral_save_changes_button']))
     $servientrega_user = $_POST['servientrega_user'];
     $servientrega_password = $_POST['servientrega_password'];
     $servientrega_billing_code = $_POST['servientrega_billing_code'];
+    $servientrega_id_client = $_POST['servientrega_id_client'];
     $test_mode = (isset($_POST['servientrega_production']) && $_POST['servientrega_production'] ==='yes') ? true : false;
 
 
@@ -66,11 +68,12 @@ if(isset($_POST['servientrega_genaral_save_changes_button']))
     $wc_main_settings['servientrega_user'] = (isset($_POST['servientrega_user'])) ? sanitize_text_field($_POST['servientrega_user']) : 'testajagroup';
     $wc_main_settings['servientrega_password']        = (isset($_POST['servientrega_password'])) ? sanitize_text_field($_POST['servientrega_password']) : 'Colombia1';
     $wc_main_settings['servientrega_billing_code']  = (isset($_POST['servientrega_billing_code'])) ? sanitize_text_field($_POST['servientrega_billing_code']) : 'Cargue SMP';
+    $wc_main_settings['servientrega_id_client'] = (isset($_POST['servientrega_id_client'])) ? sanitize_text_field($_POST['servientrega_id_client']) : '900917801';
     $wc_main_settings['servientrega_address_sender'] = (isset($_POST['servientrega_address_sender'])) ? sanitize_text_field($_POST['servientrega_address_sender']) : '';
     $wc_main_settings['servientrega_agreement_pay'] = (isset($_POST['servientrega_agreement_pay'])) ? sanitize_text_field($_POST['servientrega_agreement_pay']) : '';
 
 
-    servientrega_validate_credentials($test_mode,$servientrega_user,$servientrega_password,$servientrega_billing_code);
+    servientrega_validate_credentials($test_mode,$servientrega_user,$servientrega_password,$servientrega_billing_code,$servientrega_id_client);
     
     update_option('woocommerce_servientrega_shipping_settings',$wc_main_settings);
 }
@@ -132,6 +135,9 @@ $htmlGeneral .= '
             </fieldset>';
             $htmlGeneral .= '<fieldset style="padding:3px;">
                 <input class="input-text regular-input" required type="text" name="servientrega_billing_code" id="servientrega_billing_code "'; $disable =  ($validation === 'done') ? 'disabled="true "' : ' '; $htmlGeneral .= $disable;  $htmlGeneral .= 'value= "'; $value = (isset($general_settings['servientrega_billing_code'])) ? $general_settings['servientrega_billing_code'] : 'SER408'; $htmlGeneral .= "$value\">"; $htmlGeneral .= '<label for="servientrega_billing_code">' . __('Código de Facturación') . '</label> <span class="woocommerce-help-tip" data-tip="' . __('Código de Facturación lo encuentro dentro del panel de SISCLINET') . '"></span>
+            </fieldset>';
+            $htmlGeneral .= '<fieldset style="padding:3px;">
+                <input class="input-text regular-input" required type="number" name="servientrega_id_client" id="servientrega_id_client" '; $disable =  ($validation === 'done') ? 'disabled="true "' : ' '; $htmlGeneral .= $disable;  $htmlGeneral .= 'value= "'; $value = (isset($general_settings['servientrega_id_client'])) ? $general_settings['servientrega_id_client'] : '900917801'; $htmlGeneral .= "$value\">"; $htmlGeneral .= '<label for="servientrega_id_client">' . __('ID cliente o NIT') . '</label> <span class="woocommerce-help-tip" data-tip="' . __('Es el mismo número NIT, lo encuentro dentro del panel de SISCLINET') . '"></span>
             </fieldset>';
             $htmlGeneral .= get_option('servientrega_validation_error') . '<fieldset style="padding:3px;">
                 <input type="submit" value="Validar Credenciales" class="button button-secondary" name="servientrega_validate_credentials">

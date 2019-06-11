@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Servientrega;
-
 
 class WebService
 {
@@ -13,6 +11,7 @@ class WebService
     private $_login_user;
     private $_pwd;
     private $_billing_code;
+    private $_id_cient;
     private $_name_pack;
 
     /**
@@ -22,11 +21,12 @@ class WebService
      * @param $_billing_code
      * @param $_name_pack
      */
-    public function __construct($_login_user, $_pwd, $_billing_code, $_name_pack)
+    public function __construct($_login_user, $_pwd, $_billing_code, $id_client, $_name_pack)
     {
         $this->_login_user = $_login_user;
         $this->_pwd = $_pwd;
         $this->_billing_code = $_billing_code;
+        $this->_id_cient = $id_client;
         $this->_name_pack = $_name_pack;
     }
 
@@ -156,6 +156,15 @@ class WebService
         return $this->call_soap(__FUNCTION__, $params, true);
     }
 
+    /**
+     * @param array $params
+     * @return mixed
+     * @throws \Exception
+     */
+    public function EstadoGuiasIdDocumentoCliente(array $params)
+    {
+        return $this->call_soap(__FUNCTION__, $params, true);
+    }
 
     /**
      * @return array
@@ -178,33 +187,39 @@ class WebService
         ];
     }
 
-
     /**
      * @param $name_function
      * @param array $params
-     * @return mixed
+     * @param bool $tracking
+     * @return \SimpleXMLElement
      * @throws \Exception
      */
     private function call_soap($name_function, array $params, $tracking = false)
     {
+        try {
 
-        try{
-
-            if (!$tracking){
+            if (!$tracking) {
                 $headerData = strpos($name_function, 'Contrasena') !== false ? '' : $this->paramsHeader();
                 $client = new \SoapClient(self::URL_GUIDES, $this->optionsSoap());
                 $header = new \SoapHeader(self::NAMESPACE_GUIDES, 'AuthHeader', $headerData);
                 $client->__setSoapHeaders($header);
-            }else{
+            } else {
                 $client = new \SoapClient(self::URL_TRACKING_DISPATCHES, $this->optionsSoap());
             }
 
-            $result = $client->$name_function($params);
-            $this->checkAuthentication($result);
+            if(strpos($name_function, 'EstadoGuia') !== false ){
+                $params = array_merge($params, ['ID_Cliente' => $this->_id_cient]);
+                $result = $client->$name_function($params);
+                $resultGuide = $name_function . "Result";
+                $result = simplexml_load_string($result->$resultGuide->any);
+            }else{
+                $result = $client->$name_function($params);
+                $this->checkAuthentication($result);
+            }
 
             return $result;
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             throw new  \Exception($exception->getMessage());
         }
     }

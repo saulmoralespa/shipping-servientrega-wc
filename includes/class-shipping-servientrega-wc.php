@@ -9,7 +9,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
     public function __construct($instance_id = 0)
     {
         parent::__construct($instance_id);
-        $this->servientrega = new WebService($this->user, $this->password, $this->billing_code, get_bloginfo('name'));
+        $this->servientrega = new WebService($this->user, $this->password, $this->billing_code, $this->id_client, get_bloginfo('name'));
     }
 
     public function generate_guide($order_id, $old_status, $new_status, $order)
@@ -30,7 +30,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             if (!$guide->CargueMasivoExternoResult) return;
 
             $guide_number = $guide->envios->CargueMasivoExternoDTO->objEnvios->EnviosExterno->Num_Guia;
-            $guide_url = sprintf( __( 'Código de seguimiento <a target="_blank" href="%1$s">' . $guide_number .'</a>.' ), "https://www.servientrega.com/wps/portal/Colombia/transacciones-personas/rastreo-envios/detalle?id=$guide_number" );
+            $guide_url = sprintf( __( 'Servientrega Código de seguimiento <a target="_blank" href="%1$s">' . $guide_number .'</a>.' ), "https://www.servientrega.com/wps/portal/Colombia/transacciones-personas/rastreo-envios/detalle?id=$guide_number" );
             update_post_meta($order_id, 'guide_servientrega', $guide_number);
             $order->add_order_note($guide_url);
 
@@ -57,7 +57,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         $data_products = self::dimensions_weight($items, true);
         $namesProducts = implode(",",  $data_products['name_products']);
 
-        $params = array(
+        $params = [
             'Num_Guia' => 0,
             'Num_Sobreporte' => 0,
             'Num_Piezas' => $this->get_quantity_product($items),
@@ -106,7 +106,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'Des_CorreoElectronico' => $order->get_billing_email(),
             'Num_Recaudo' => 0,
             'Est_EnviarCorreo' => false
-        );
+        ];
 
         $resp = new stdClass;
 
