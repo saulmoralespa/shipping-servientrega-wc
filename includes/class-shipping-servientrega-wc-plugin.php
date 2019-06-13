@@ -177,11 +177,32 @@ class Shipping_Servientrega_WC_Plugin
 
     public function servientrega_shipping_matriz()
     {
-        $dir = $this->pathUpload();
+        if ( ! isset( $_POST['servientrega_matriz_excel'] )
+            || ! wp_verify_nonce( $_POST['servientrega_matriz_excel'], 'servientrega_upload_matriz_excel' )
+        )
+            return;
 
         $fileName = $_FILES["servientrega_xls"]["name"];
         $fileTmpName = $_FILES["servientrega_xls"]["tmp_name"];
 
+        $supported_type = [
+            'application/excel',
+            'application/vnd.ms-excel',
+            'application/x-excel',
+            'application/x-msexcel'
+        ];
+        $arr_file_type = wp_check_filetype(basename($fileName));
+        $uploaded_type = $arr_file_type['type'];
+
+        if(!in_array($uploaded_type, $supported_type))
+            wp_send_json(
+                [
+                    'status' => false,
+                    'message' => 'Tipo de archivo no aceptado debe ser excel con extensión .xsl'
+                ]
+            );
+
+        $dir = $this->pathUpload();
         $name = $this->changeName($fileName);
 
         $pathXLS = $dir . $name;
@@ -204,14 +225,13 @@ class Shipping_Servientrega_WC_Plugin
 
             $keysColumns = $this->columns($data);
 
-            if (empty($keysColumns)){
-                $result = [
-                    'status' => false,
-                    'message' => 'El excel debe tener las columnas ID_CIUDAD_DESTINO, TIEMPOENTREGA_COMERCIAL, TIPOTRAYECTO, RESTRICCION_FISICA'
-                ];
-
-                wp_send_json($result);
-            }
+            if (empty($keysColumns))
+                wp_send_json(
+                    [
+                        'status' => false,
+                        'message' => 'El excel debe tener las columnas ID_CIUDAD_DESTINO, TIEMPOENTREGA_COMERCIAL, TIPOTRAYECTO, RESTRICCION_FISICA'
+                    ]
+                );
 
             global $wpdb;
             $table_name = $wpdb->prefix . 'shipping_servientrega_matriz';

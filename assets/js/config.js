@@ -3,6 +3,10 @@
     $('#servientrega_upload_matriz').on('change', function(e) {
         e.preventDefault();
 
+        let form = $(this).parents('form');
+
+        let servientrega_matriz_excel = form.find('input[name=servientrega_matriz_excel]').val();
+
         let ext = e.target.value.split(".").pop().toLowerCase();
 
         if (ext !== 'xls'){
@@ -28,6 +32,7 @@
         let fd = new FormData();
         fd.append('servientrega_xls', xsl);
         fd.append('action', 'servientrega_shipping_matriz');
+        fd.append('servientrega_matriz_excel', servientrega_matriz_excel);
         uploadImage(fd);
 
     });

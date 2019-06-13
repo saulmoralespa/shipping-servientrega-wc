@@ -12,7 +12,8 @@ $htmlPacking = '
         </td>
         <td scope="row" class="titledesc" style="display: block;margin-bottom: 20px;margin-top: 3px;">
             <fieldset style="padding:3px;">
-                <input id="servientrega_upload_matriz" accept=".xls" type="file">
+                <input id="servientrega_upload_matriz" accept=".xls" type="file">' .
+                wp_nonce_field( "servientrega_upload_matriz_excel", "servientrega_matriz_excel" ) . ' 
             </fieldset>
         </td>
      </tr>';
