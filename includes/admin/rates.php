@@ -1,20 +1,48 @@
 <?php
 
 $this->init_settings();
+
 global $woocommerce;
+
 $wc_main_settings = array();
+
 if(isset($_POST['servientrega_rates_save_changes_button']))
 {
 
     $wc_main_settings = get_option('woocommerce_servientrega_shipping_settings');
 
-    $wc_main_settings = array_merge($wc_main_settings,$_POST);
+    $rateNacional = $_POST['rate']['nacional'];
+    $rateNacional = sanitize($rateNacional);
+    $rateZonal = $_POST['rate']['zonal'];
+    $rateZonal = sanitize($rateZonal);
+    $rateUrbano = $_POST['rate']['urbano'];
+    $rateUrbano = sanitize($rateUrbano);
+    $rateEspecial = $_POST['rate']['especial'];
+    $rateEspecial = sanitize($rateEspecial);
+    $additional = $_POST['rate']['additional'];
+    $additional = sanitize($additional);
+    $freight = $_POST['rate']['freight'];
+    $wc_main_settings['rate']['freight'] = sanitize_text_field($freight);
+
+    $wc_main_settings = array_merge($wc_main_settings, $rateNacional, $rateZonal, $rateUrbano, $rateEspecial, $additional);
 
     update_option('woocommerce_servientrega_shipping_settings',$wc_main_settings);
 
 }
 
 $general_settings = get_option('woocommerce_servientrega_shipping_settings');
+
+function sanitize($rate){
+
+    $result = [];
+
+    foreach ($rate as $key => $val){
+        $result[$key] = sanitize_text_field($val);
+    }
+
+    return $result;
+
+}
 
 $htmlRates = '
 <table>
@@ -81,7 +109,6 @@ $htmlRates = '
         <td colspan="2" style="text-align:center;">
             <br/>
             <input type="submit" value="Guardar Cambios" class="button button-primary" name="servientrega_rates_save_changes_button">
-
         </td>
     </tr>';
 

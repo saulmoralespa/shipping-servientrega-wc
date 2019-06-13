@@ -62,9 +62,6 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
     {
         // Load the settings API.
         $this->init_form_fields(); // This is part of the settings API. Override the method to add your own settings.
-        $this->init_settings(); // This is part of the settings API. Loads settings you previously init.
-        // Save settings in admin if you have any defined.
-        add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
     }
 
     public function init_form_fields()
@@ -104,17 +101,6 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
         }
         $html .= '</h2>';
         return $html;
-    }
-
-    public function admin_options()
-    {
-        ?>
-        <h3><?php echo $this->title; ?></h3>
-        <p><?php echo $this->method_description; ?></p>
-        <table class="form-table">
-            <?php $this->generate_settings_html(); ?>
-        </table>
-        <?php
     }
 
     public function calculate_shipping($package = [])

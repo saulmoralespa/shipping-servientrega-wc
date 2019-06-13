@@ -7,14 +7,14 @@ global $woocommerce;
 $wc_main_settings = array();
 if(isset($_POST['servientrega_validate_credentials']))
 {
-    $servientrega_user        = $_POST['servientrega_user'];
-    $servientrega_password       = $_POST['servientrega_password'];
-    $servientrega_billing_code = $_POST['servientrega_billing_code'];
-    $servientrega_id_client = $_POST['servientrega_id_client'];
+    $servientrega_user = sanitize_text_field($_POST['servientrega_user']);
+    $servientrega_password = sanitize_text_field($_POST['servientrega_password']);
+    $servientrega_billing_code = sanitize_text_field($_POST['servientrega_billing_code']);
+    $servientrega_id_client = sanitize_text_field($_POST['servientrega_id_client']);
     $test_mode = (isset($_POST['servientrega_production']) && $_POST['servientrega_production'] ==='yes') ? true : false;
 
-    $wc_main_settings                   = get_option('woocommerce_servientrega_shipping_settings');
-    $wc_main_settings['production']     = $test_mode;
+    $wc_main_settings = get_option('woocommerce_servientrega_shipping_settings');
+    $wc_main_settings['production'] = $test_mode;
     $wc_main_settings['servientrega_user'] = (isset($_POST['servientrega_user'])) ? sanitize_text_field($_POST['servientrega_user']) : 'testajagroup';
     $wc_main_settings['servientrega_password']        = (isset($_POST['servientrega_password'])) ? sanitize_text_field($_POST['servientrega_password']) : 'Colombia1';
     $wc_main_settings['servientrega_billing_code']  = (isset($_POST['servientrega_billing_code'])) ? sanitize_text_field($_POST['servientrega_billing_code']) : 'Cargue SMP';
@@ -56,10 +56,10 @@ function servientrega_validate_credentials($test_mode,$servientrega_user,$servie
 if(isset($_POST['servientrega_genaral_save_changes_button']))
 {
 
-    $servientrega_user = $_POST['servientrega_user'];
-    $servientrega_password = $_POST['servientrega_password'];
-    $servientrega_billing_code = $_POST['servientrega_billing_code'];
-    $servientrega_id_client = $_POST['servientrega_id_client'];
+    $servientrega_user = sanitize_text_field($_POST['servientrega_user']);
+    $servientrega_password = sanitize_text_field($_POST['servientrega_password']);
+    $servientrega_billing_code = sanitize_text_field($_POST['servientrega_billing_code']);
+    $servientrega_id_client = sanitize_text_field($_POST['servientrega_id_client']);
     $test_mode = (isset($_POST['servientrega_production']) && $_POST['servientrega_production'] ==='yes') ? true : false;
 
 
@@ -94,10 +94,10 @@ $htmlGeneral = '<img style="float:right;" src="' . shipping_servientrega_wc_ss()
 $htmlGeneral .= '
 <table>
     <tr valign="top">
-        <td style="width:25%;font-weight:bold;">
+        <td style="width:25%;padding-top:40px;font-weight:bold;">
             <label for="servientrega_production">' .  __('Información cuenta de Servientrega') . '</label><span class="woocommerce-help-tip" data-tip="' . __('La información suministrada por Servientrega, relacionada con el acuerdo como Usuario, Contraseña, Código de Facturación, Forma de pago') . '"></span>
         </td>' . $this->get_option('woocommerce_servientrega_production') . '
-        <td scope="row" class="titledesc" style="display: block;margin-bottom: 20px;margin-top: 3px;">
+        <td scope="row" class="titledesc" style="display:block;margin-bottom:20px;margin-top:3px;padding-top:40px;">
             <fieldset style="padding:3px;">';
                 if(isset($general_settings['production']) && $general_settings['production'] === true)
                 {

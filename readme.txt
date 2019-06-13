@@ -5,7 +5,7 @@ Tags: commerce, e-commerce, commerce, wordpress ecommerce, store, sales, sell, s
 Requires at least: 5.0
 Tested up to: 5.2
 Requires PHP: 7.1
-Stable tag: 2.0.4
+Stable tag: 2.0.5
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -63,6 +63,8 @@ La reciente versión esta limitada podrá adquirir la paga con todas las funcion
 * Added wp_nonce_field
 = 2.0.4 =
 * Added freight
+= 2.0.5 =
+* Added sanitize_text_field
 
 == Additional Info ==
 **Contribute** [repository on github](https://github.com/saulmoralespa/shipping-servientrega-wc)

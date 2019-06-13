@@ -140,7 +140,7 @@ class Shipping_Servientrega_WC_Plugin
 
     public function save_custom_shipping_option_to_products($post_id)
     {
-        $custom_price_product = $_POST['_shipping_custom_price_product_smp'];
+        $custom_price_product = sanitize_text_field($_POST['_shipping_custom_price_product_smp']);
         if( isset( $custom_price_product ) )
             update_post_meta( $post_id, '_shipping_custom_price_product_smp', esc_attr( $custom_price_product ) );
     }
@@ -182,8 +182,8 @@ class Shipping_Servientrega_WC_Plugin
         )
             return;
 
-        $fileName = $_FILES["servientrega_xls"]["name"];
-        $fileTmpName = $_FILES["servientrega_xls"]["tmp_name"];
+        $fileName = sanitize_text_field($_FILES["servientrega_xls"]["name"]);
+        $fileTmpName = sanitize_text_field($_FILES["servientrega_xls"]["tmp_name"]);
 
         $supported_type = [
             'application/excel',
