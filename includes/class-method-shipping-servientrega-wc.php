@@ -117,7 +117,7 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
         <?php
     }
 
-    public function calculate_shipping($package = array())
+    public function calculate_shipping($package = [])
     {
 
         global $woocommerce;
@@ -165,6 +165,7 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
         $rates = $this->rates_servientrega;
         $weight = $rates['weight'];
         $journey = $matrix_data['tipo_trayecto'];
+        $freight = $rates['freight'];
 
         $total_weight_products = $data_products['weight'];
 
@@ -201,6 +202,8 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
             $journeyCost += $additionalCost;
 
         }
+
+        $journeyCost += $freight;
 
         $rate       = array(
             'id'      => $this->id,

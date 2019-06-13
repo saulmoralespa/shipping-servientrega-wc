@@ -64,6 +64,14 @@ $htmlRates = '
                         <td><input type="text" name="rate[additional][zonal]" class="wc_input_price" placeholder="2600" value="'.$additionalZonal.'" size="10" required></td>
                         <td><input type="text" name="rate[additional][urbano]" class="wc_input_price" placeholder="2400" value="'.$additionalUrban.'" size="10" required></td>
                         <td><input type="text" name="rate[additional][especial]" class="wc_input_price" placeholder="6400" value="'.$additionalSpecial.'" size="10" required></td>
+                    </tr>';
+                    $freight = isset($general_settings['rate']['freight']) ? $general_settings['rate']['freight'] : '000';
+                    $htmlRates .= '<tr class="freight">
+                        <td><input type="text" placeholder="SobreFlete Minímo" readonly></td>
+                        <td></td>
+                        <td><input type="text" name="rate[freight]" class="wc_input_price" placeholder="350" size="6" value="'.$freight.'" required></td>
+                        <td></td>
+                        <td></td>
                     </tr>
                 </tbody>
             </table>
