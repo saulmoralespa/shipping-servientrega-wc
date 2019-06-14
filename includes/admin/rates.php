@@ -9,18 +9,22 @@ $wc_main_settings = array();
 if(isset($_POST['servientrega_rates_save_changes_button']))
 {
 
+    if ( !isset( $_POST['shipping_servientrega_wc_ss_rates'] )
+        || !wp_verify_nonce( $_POST['shipping_servientrega_wc_ss_rates'], 'shipping_servientrega_wc_ss_rates' ))
+        return;
+
     $wc_main_settings = get_option('woocommerce_servientrega_shipping_settings');
 
     $rateNacional = $_POST['rate']['nacional'];
-    $rateNacional = sanitize($rateNacional);
+    $rateNacional = shipping_servientrega_wc_ss_sanitize($rateNacional);
     $rateZonal = $_POST['rate']['zonal'];
-    $rateZonal = sanitize($rateZonal);
+    $rateZonal = shipping_servientrega_wc_ss_sanitize($rateZonal);
     $rateUrbano = $_POST['rate']['urbano'];
-    $rateUrbano = sanitize($rateUrbano);
+    $rateUrbano = shipping_servientrega_wc_ss_sanitize($rateUrbano);
     $rateEspecial = $_POST['rate']['especial'];
-    $rateEspecial = sanitize($rateEspecial);
+    $rateEspecial = shipping_servientrega_wc_ss_sanitize($rateEspecial);
     $additional = $_POST['rate']['additional'];
-    $additional = sanitize($additional);
+    $additional = shipping_servientrega_wc_ss_sanitize($additional);
     $freight = $_POST['rate']['freight'];
     $wc_main_settings['rate']['freight'] = sanitize_text_field($freight);
 
@@ -32,7 +36,7 @@ if(isset($_POST['servientrega_rates_save_changes_button']))
 
 $general_settings = get_option('woocommerce_servientrega_shipping_settings');
 
-function sanitize($rate){
+function shipping_servientrega_wc_ss_sanitize($rate){
 
     $result = [];
 
@@ -106,7 +110,8 @@ $htmlRates = '
         </td>
     </tr>
     <tr>
-        <td colspan="2" style="text-align:center;">
+        <td colspan="2" style="text-align:center;">' .
+             wp_nonce_field( "shipping_servientrega_wc_ss_rates", "shipping_servientrega_wc_ss_rates" ) . '
             <br/>
             <input type="submit" value="Guardar Cambios" class="button button-primary" name="servientrega_rates_save_changes_button">
         </td>

@@ -7,6 +7,11 @@ global $woocommerce;
 $wc_main_settings = array();
 if(isset($_POST['servientrega_validate_credentials']))
 {
+
+    if ( !isset( $_POST['shipping_servientrega_wc_ss_general'] )
+        || !wp_verify_nonce( $_POST['shipping_servientrega_wc_ss_general'], 'shipping_servientrega_wc_ss_general' ))
+        return;
+
     $servientrega_user = sanitize_text_field($_POST['servientrega_user']);
     $servientrega_password = sanitize_text_field($_POST['servientrega_password']);
     $servientrega_billing_code = sanitize_text_field($_POST['servientrega_billing_code']);
@@ -55,6 +60,10 @@ function servientrega_validate_credentials($test_mode,$servientrega_user,$servie
 
 if(isset($_POST['servientrega_genaral_save_changes_button']))
 {
+
+    if ( !isset( $_POST['shipping_servientrega_wc_ss_general'] )
+        || !wp_verify_nonce( $_POST['shipping_servientrega_wc_ss_general'], 'shipping_servientrega_wc_ss_general' ))
+        return;
 
     $servientrega_user = sanitize_text_field($_POST['servientrega_user']);
     $servientrega_password = sanitize_text_field($_POST['servientrega_password']);
@@ -173,9 +182,10 @@ $htmlGeneral .= '
                     endforeach;
                 $htmlGeneral .= '</select>
             </fieldset>
-        </td>';
+                    </td>';
     $htmlGeneral .= '<tr>
-        <td colspan="2" style="text-align:center;">
+        <td colspan="2" style="text-align:center;">' .
+        wp_nonce_field( "shipping_servientrega_wc_ss_general", "shipping_servientrega_wc_ss_general" ) . '
             <button type="submit" class="button button-primary" name="servientrega_genaral_save_changes_button">' . __('Guardar cambios') . '</button>
         </td>
     </tr>';
