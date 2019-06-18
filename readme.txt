@@ -5,7 +5,7 @@ Tags: commerce, e-commerce, commerce, wordpress ecommerce, store, sales, sell, s
 Requires at least: 5.0
 Tested up to: 5.2
 Requires PHP: 7.1
-Stable tag: 2.0.6
+Stable tag: 2.0.3
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -24,6 +24,10 @@ seguimiento de despachos
 4. Busque por el nombre **Shipping Servientrega Woocommerce**
 5. Instale y active el plugin y siga el proceso de configuración.
 6. Establezca los detalles del envío del producto, ver captura de pantalla.
+
+
+[youtube https://www.youtube.com/watch?v=l04z0McvRqs]
+
 
 == Frequently Asked Questions ==
 
@@ -60,13 +64,7 @@ La reciente versión esta limitada podrá adquirir la paga con todas las funcion
 = 2.0.2 =
 * Updated verification upload excel
 = 2.0.3 =
-* Added wp_nonce_field
-= 2.0.4 =
-* Added freight
-= 2.0.5 =
-* Added sanitize_text_field
-= 2.0.6 =
-* Added sanitize_text_field
+* Added documentation
 
 == Additional Info ==
 **Contribute** [repository on github](https://github.com/saulmoralespa/shipping-servientrega-wc)

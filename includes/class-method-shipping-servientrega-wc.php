@@ -90,7 +90,7 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
         $tabs = array(
             'general' => __("General"),
             'rates' => __("Tiempo de entrega, Liquidación y trayectos"),
-            'packing' => __("Matriz Mercancia Premier - Terrestre"),
+            'packing' => __("Red operativa terrestre"),
             //'licence' => __("License ".$acivated_tab_html, 'wf-shipping-dhl')
         );
         $html = '<h2 class="nav-tab-wrapper">';
@@ -114,16 +114,18 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
         $city_destination = Shipping_Servientrega_WC::clean_string($city_destination);
         $items = $woocommerce->cart->get_cart();
 
-        if($country !== 'CO')
+        if($country !== 'CO' || empty($state_destination))
             return apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
 
         $name_state_destination = Shipping_Servientrega_WC::name_destination($country, $state_destination);
 
-        $origin = $this->address_sender;
+        if (empty($name_state_destination))
+            return apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
+
         $address_destine = "$city_destination - $name_state_destination";
 
         if ($this->debug === 'yes')
-            shipping_servientrega_wc_ss()->log("origin: $origin address_destine: $address_destine");
+            shipping_servientrega_wc_ss()->log("origin: $this->address_sender address_destine: $address_destine");
 
         $cities = include dirname(__FILE__) . '/cities.php';
 

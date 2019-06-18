@@ -4,7 +4,8 @@ use Servientrega\WebService;
 
 $this->init_settings();
 global $woocommerce;
-$wc_main_settings = array();
+$wc_main_settings = [];
+
 if(isset($_POST['servientrega_validate_credentials']))
 {
 

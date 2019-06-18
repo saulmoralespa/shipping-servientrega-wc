@@ -106,7 +106,7 @@ class Shipping_Servientrega_WC_Plugin
     {
         $plugin_links = array();
         $plugin_links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=shipping&section=shipping_servientrega_wc') . '">' . 'Configuraciones' . '</a>';
-        $plugin_links[] = '<a href="https://saulmoralespa.github.io/shipping-servientrega-wc/">' . 'Documentación' . '</a>';
+        $plugin_links[] = '<a target="_blank" href="https://shop.saulmoralespa.com/shipping-servientrega-woocommerce/">' . 'Documentación' . '</a>';
         return array_merge( $plugin_links, $links );
     }
 

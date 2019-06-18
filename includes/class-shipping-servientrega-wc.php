@@ -125,6 +125,11 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         $countries_obj = new WC_Countries();
         $country_states_array = $countries_obj->get_states();
 
+        $name_state_destination = '';
+
+        if(!isset($country_states_array[$country][$state_destination]))
+            return $name_state_destination;
+
         $name_state_destination = $country_states_array[$country][$state_destination];
         $name_state_destination = self::clean_string($name_state_destination);
         return self::short_name_location($name_state_destination);

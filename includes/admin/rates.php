@@ -9,7 +9,8 @@ $wc_main_settings = array();
 if(isset($_POST['servientrega_rates_save_changes_button']))
 {
 
-    if ( !isset( $_POST['shipping_servientrega_wc_ss_rates'] )
+    if ( !isset( $_POST['shipping_servientrega_wc_ss_rates'] ) ||
+        !current_user_can('administrator')
         || !wp_verify_nonce( $_POST['shipping_servientrega_wc_ss_rates'], 'shipping_servientrega_wc_ss_rates' ))
         return;
 
@@ -52,15 +53,15 @@ $htmlRates = '
 <table>
     <tr id="rates_options" valign="top">
         <td class="titledesc" colspan="2" style="padding-top:40px;padding-left:0px;">
-            <strong>Liquidación y valores de trayectos</strong><br><br>
+            <strong>Liquidación y costos de trayectos</strong><br><br>
             <table class="widefat">
                 <thead>
                     <tr>
                         <th>Liquidación Kg</th>
-                        <th>Precio trayecto Nacional ($)</th>
-                        <th>Precio trayecto Zonal ($)</th>
-                        <th>Precio trayecto Urbano ($)</th>
-                        <th>Precio trayecto Eespecial ($)</th>
+                        <th>Costo trayecto Nacional ($)</th>
+                        <th>Costo trayecto Zonal ($)</th>
+                        <th>Costo trayecto Urbano ($)</th>
+                        <th>Costo trayecto Eespecial ($)</th>
                         <th>Acción ($)</th>
                     </tr>
                 </thead>
