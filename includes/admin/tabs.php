@@ -19,7 +19,7 @@ $html = '
             background-color: black;
             color: #fff;
             text-align: center;
-            border-radius: 6px;
+            border-radius: 6px; 
             padding: 5px 0;
 
             /* Position the tooltip */
@@ -33,20 +33,8 @@ $html = '
     </style>
     <hr class="wp-header-end">';
 $html .= $this->servientrega_shipping_page_tabs($tab);
-switch ($tab) {
-    case "general":
-        $html .= require_once('general.php');
-        break;
-    case "rates":
-        $html .= require_once('rates.php');
-        break;
-    case "packing":
-        $html .= require_once('packing.php');
-        break;
-    case "licence":
-        //$plugin_name = 'dhl';
-        //include( WF_DHL_PAKET_EXPRESS_ROOT_PATH . 'wf_api_manager/html/html-wf-activation-window.php' );
-        break;
-}
+
+if (in_array($tab, $this->nameTabs()))
+    $html .= require_once($this->addTabPerFile($tab));
 $html .= '</div>';
 echo $html;

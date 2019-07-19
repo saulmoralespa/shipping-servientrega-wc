@@ -61,7 +61,7 @@ $htmlRates = '
                         <th>Costo trayecto Nacional ($)</th>
                         <th>Costo trayecto Zonal ($)</th>
                         <th>Costo trayecto Urbano ($)</th>
-                        <th>Costo trayecto Eespecial ($)</th>
+                        <th>Costo trayecto Especial ($)</th>
                         <th>Acción ($)</th>
                     </tr>
                 </thead>

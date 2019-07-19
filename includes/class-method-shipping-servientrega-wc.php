@@ -70,6 +70,34 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
             $this->form_fields = include( dirname( __FILE__ ) . '/admin/settings.php' );
     }
 
+    public function nameTabs()
+    {
+        $servientrega_shipping_tabs = [
+          'general',
+          'rates',
+          'packing',
+          'licence'
+        ];
+
+        return apply_filters( 'servientrega_shipping_tabs', $servientrega_shipping_tabs );
+    }
+
+    public function addTabPerFile($tab)
+    {
+       $tab = file_exists(__DIR__ . "/admin/$tab.php") ? __DIR__ . "/admin/$tab.php" : $this->pluginPathExtension($tab);
+
+       return $tab;
+    }
+
+    public function pluginPathExtension($tab)
+    {
+        $nameClass = get_class($this);
+        $nameClass = strtolower($nameClass);
+        $nameClass = str_replace('_', '-', $nameClass);
+
+        return trailingslashit(WP_PLUGIN_DIR) . trailingslashit($nameClass) . "includes/admin/$tab.php";
+    }
+
     public function generate_servientrega_tab_box_html()
     {
         include( dirname( __FILE__ ) . '/admin/tabs.php' );
@@ -95,9 +123,10 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
         );
         $html = '<h2 class="nav-tab-wrapper">';
         foreach ($tabs as $tab => $name) {
-            $class = ($tab == $current) ? 'nav-tab-active' : '';
+               $class = ($tab == $current) ? 'nav-tab-active' : '';
             $style = ($tab == $current) ? 'border-bottom: 1px solid transparent !important;' : '';
-            $html .= '<a style="text-decoration:none !important;' . $style . '" class="nav-tab ' . $class . '" href="?page=wc-settings&tab=shipping&section=shipping_servientrega_wc&subtab=' . $tab . '">' . $name . '</a>';
+            $html .= '<a style="text-decoration:none !important;' . $style . '" class="nav-tab ' . $class .
+                '" href="?page=wc-settings&tab=shipping&section=shipping_servientrega_wc&subtab=' . $tab . '">' . $name . '</a>';
         }
         $html .= '</h2>';
         return $html;
@@ -105,7 +134,6 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
 
     public function calculate_shipping($package = [])
     {
-
         global $woocommerce;
 
         $country = $package['destination']['country'];
@@ -150,55 +178,12 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
                 return apply_filters( 'woocommerce_shipping_' . $this->id . '_is_available', false, $package, $this );
             }
 
-        $rates = $this->rates_servientrega;
-        $weight = $rates['weight'];
-        $journey = $matrix_data['tipo_trayecto'];
-        $freight = $rates['freight'];
-
-        $total_weight_products = $data_products['weight'];
-
-        $key_data = [];
-
-        foreach ($weight as $key => $value){
-
-            $key_data = [$key];
-
-            $value = (int)$value;
-
-            if(($value === $total_weight_products) || ($value > $total_weight_products)){
-                break;
-            }elseif ($total_weight_products > $value) {
-                $key_data = [$key, $value];
-            }
-        }
-
-        $rate_key = $key_data[0];
-
-        $journeyCost = (int)$rates[$journey][$rate_key];
-
-        if (count($key_data) > 1){
-            $weight = $weight[$rate_key];
-
-            $remaining = $total_weight_products - $weight;
-
-            //additionals kilos
-
-            $additionalCost = (int)$rates['additional'][$journey];
-
-            $additionalCost = $additionalCost * $remaining;
-
-            $journeyCost += $additionalCost;
-
-        }
-
-        $journeyCost += $freight;
-
-        $rate       = array(
-            'id'      => $this->id,
-            'label'   => $this->title,
-            'cost'    => $journeyCost,
+        $rate = [
+            'id' => $this->id,
+            'label' => $this->title,
+            'cost' => $this->calculate_cost($matrix_data, $data_products),
             'package' => $package,
-        );
+        ];
 
         $delivery_commercial = (int)$matrix_data['tiempo_entrega_comercial'];
         $delivery_days = $delivery_commercial > 1 ? "$delivery_commercial días" : "$delivery_commercial día";
@@ -213,6 +198,53 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
 
         return $this->add_rate( $rate );
 
+    }
+
+    public function calculate_cost($matrix_data, $data_products)
+    {
+        $rates = $this->rates_servientrega;
+        $weight = $rates['weight'];
+        $journey = $matrix_data['tipo_trayecto'];
+        $freight = $rates['freight'];
+
+        $total_weight_products = $data_products['weight'];
+
+        $data_weight_key = [];
+
+        foreach ($weight as $key => $value){
+
+            $data_weight_key = [$key];
+
+            $value = (int)$value;
+
+            if(($value === $total_weight_products) || ($value > $total_weight_products)){
+                break;
+            }elseif ($total_weight_products > $value) {
+                $data_weight_key = [$key, $value];
+            }
+        }
+
+        $rate_key_weight = $data_weight_key[0];
+
+        $journeyCost = (int)$rates[$journey][$rate_key_weight];
+
+        //additionals kilos
+        if (count($data_weight_key) === 2){
+            $weight = $weight[$rate_key_weight];
+
+            $remaining = $total_weight_products - $weight;
+
+            $additionalCost = (int)$rates['additional'][$journey];
+
+            $additionalCost = $additionalCost * $remaining;
+
+            $journeyCost += $additionalCost;
+
+        }
+
+        $journeyCost += $freight;
+
+        return apply_filters( 'servientrega_shipping_calculate_cost', $journeyCost, $matrix_data, $data_products );
     }
 
     public function check_restriction($data_products, $physical_restriction)
