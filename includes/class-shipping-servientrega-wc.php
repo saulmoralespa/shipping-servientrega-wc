@@ -67,7 +67,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'Ide_Manifiesto' => '00000000-0000-0000-0000-000000000000',
             'Des_FormaPago' => $instance->way_pay, // 2 Crédito 4 contra entrega
             'Des_MedioTransporte' => 1, // terrestre
-            'Num_PesoTotal' => $data_products['weight'],
+            'Num_PesoTotal' => ceil($data_products['weight']),
             'Num_ValorDeclaradoTotal' => $data_products['total_valorization'],
             'Num_VolumenTotal' => 0, // para que se calcule
             'Num_BolsaSeguridad' => 0, //solo para valores, de lo contrario 0
@@ -93,7 +93,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'Num_TelefonoRemitente' => '',
             'Num_Alto' => $data_products['high'],
             'Num_Ancho' => $data_products['width'],
-            'Num_Largo' => $data_products['weight'],
+            'Num_Largo' => $data_products['length'],
             'Des_DepartamentoDestino' => $state_name,
             'Des_DepartamentoOrigen' => '',
             'Gen_Cajaporte' => 0,

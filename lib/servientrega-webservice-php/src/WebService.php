@@ -174,7 +174,7 @@ class WebService
         return [
             "trace" => true,
             "soap_version"  => SOAP_1_2,
-            "connection_timeout"=> 200,
+            "connection_timeout"=> 60,
             "encoding"=> "utf-8",
             'stream_context' => stream_context_create([
                 'ssl' => [
