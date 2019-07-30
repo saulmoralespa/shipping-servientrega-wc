@@ -16,20 +16,13 @@ if(isset($_POST['servientrega_rates_save_changes_button']))
 
     $wc_main_settings = get_option('woocommerce_servientrega_shipping_settings');
 
-    $rateNacional = $_POST['rate']['nacional'];
-    $rateNacional = shipping_servientrega_wc_ss_sanitize($rateNacional);
-    $rateZonal = $_POST['rate']['zonal'];
-    $rateZonal = shipping_servientrega_wc_ss_sanitize($rateZonal);
-    $rateUrbano = $_POST['rate']['urbano'];
-    $rateUrbano = shipping_servientrega_wc_ss_sanitize($rateUrbano);
-    $rateEspecial = $_POST['rate']['especial'];
-    $rateEspecial = shipping_servientrega_wc_ss_sanitize($rateEspecial);
-    $additional = $_POST['rate']['additional'];
-    $additional = shipping_servientrega_wc_ss_sanitize($additional);
-    $freight = $_POST['rate']['freight'];
-    $wc_main_settings['rate']['freight'] = sanitize_text_field($freight);
-
-    $wc_main_settings = array_merge($wc_main_settings, $rateNacional, $rateZonal, $rateUrbano, $rateEspecial, $additional);
+   	$wc_main_settings['rate']['weight'] = shipping_servientrega_wc_ss_sanitize($_POST['rate']['weight']);
+    $wc_main_settings['rate']['nacional'] = shipping_servientrega_wc_ss_sanitize($_POST['rate']['nacional']);
+    $wc_main_settings['rate']['zonal'] = shipping_servientrega_wc_ss_sanitize($_POST['rate']['zonal']);
+    $wc_main_settings['rate']['urbano'] = shipping_servientrega_wc_ss_sanitize($_POST['rate']['urbano']);
+    $wc_main_settings['rate']['especial'] = shipping_servientrega_wc_ss_sanitize($_POST['rate']['especial']);
+    $wc_main_settings['rate']['additional'] = shipping_servientrega_wc_ss_sanitize($_POST['rate']['additional']);
+    $wc_main_settings['rate']['freight'] = sanitize_text_field($_POST['rate']['freight']);
 
     update_option('woocommerce_servientrega_shipping_settings',$wc_main_settings);
 
