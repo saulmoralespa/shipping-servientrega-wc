@@ -12,7 +12,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         $this->servientrega = new WebService($this->user, $this->password, $this->billing_code, $this->id_client, get_bloginfo('name'));
     }
 
-    public function generate_guide($order_id, $old_status, $new_status, $order)
+    public static function generate_guide($order_id, $old_status, $new_status, $order)
     {
         $instance = new self();
 
