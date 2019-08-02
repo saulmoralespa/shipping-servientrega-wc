@@ -16,11 +16,13 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
     {
         $instance = new self();
 
-        if( !$order->has_shipping_method($instance->id)) return;
-
         $guide_servientrega = get_post_meta($order_id, 'guide_servientrega', true);
 
-        if (empty($guide_servientrega) &&  $new_status === 'processing'){
+        if (($order->has_shipping_method($instance->id) ||
+                $order->get_total_shipping() == 0 &&
+                $instance->guide_free_shipping) &&
+                empty($guide_servientrega) &&
+                $new_status === 'processing'){
 
             $guide = $instance->guide($order);
 

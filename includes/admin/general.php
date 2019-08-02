@@ -8,7 +8,6 @@ $wc_main_settings = [];
 
 if(isset($_POST['servientrega_validate_credentials']))
 {
-
     if ( !isset( $_POST['shipping_servientrega_wc_ss_general'] )
         || !wp_verify_nonce( $_POST['shipping_servientrega_wc_ss_general'], 'shipping_servientrega_wc_ss_general' ))
         return;
@@ -18,9 +17,11 @@ if(isset($_POST['servientrega_validate_credentials']))
     $servientrega_billing_code = sanitize_text_field($_POST['servientrega_billing_code']);
     $servientrega_id_client = sanitize_text_field($_POST['servientrega_id_client']);
     $test_mode = (isset($_POST['servientrega_production']) && $_POST['servientrega_production'] ==='yes') ? true : false;
+    $guide_free_shipping = (isset($_POST['servientrega_guide_free_shipping']) && $_POST['servientrega_guide_free_shipping'] ==='yes') ? true : false;
 
     $wc_main_settings = get_option('woocommerce_servientrega_shipping_settings');
     $wc_main_settings['production'] = $test_mode;
+    $wc_main_settings['servientrega_guide_free_shipping'] = $guide_free_shipping;
     $wc_main_settings['servientrega_user'] = (isset($_POST['servientrega_user'])) ? sanitize_text_field($_POST['servientrega_user']) : 'testajagroup';
     $wc_main_settings['servientrega_password']        = (isset($_POST['servientrega_password'])) ? sanitize_text_field($_POST['servientrega_password']) : 'Colombia1';
     $wc_main_settings['servientrega_billing_code']  = (isset($_POST['servientrega_billing_code'])) ? sanitize_text_field($_POST['servientrega_billing_code']) : 'Cargue SMP';
@@ -71,17 +72,17 @@ if(isset($_POST['servientrega_genaral_save_changes_button']))
     $servientrega_billing_code = sanitize_text_field($_POST['servientrega_billing_code']);
     $servientrega_id_client = sanitize_text_field($_POST['servientrega_id_client']);
     $test_mode = (isset($_POST['servientrega_production']) && $_POST['servientrega_production'] ==='yes') ? true : false;
-
+    $guide_free_shipping = (isset($_POST['servientrega_guide_free_shipping']) && $_POST['servientrega_guide_free_shipping'] ==='yes') ? true : false;
 
     $wc_main_settings = get_option('woocommerce_servientrega_shipping_settings');
     $wc_main_settings['production']     = $test_mode;
+    $wc_main_settings['servientrega_guide_free_shipping'] = $guide_free_shipping;
     $wc_main_settings['servientrega_user'] = (isset($_POST['servientrega_user'])) ? sanitize_text_field($_POST['servientrega_user']) : 'testajagroup';
     $wc_main_settings['servientrega_password']        = (isset($_POST['servientrega_password'])) ? sanitize_text_field($_POST['servientrega_password']) : 'Colombia1';
     $wc_main_settings['servientrega_billing_code']  = (isset($_POST['servientrega_billing_code'])) ? sanitize_text_field($_POST['servientrega_billing_code']) : 'Cargue SMP';
     $wc_main_settings['servientrega_id_client'] = (isset($_POST['servientrega_id_client'])) ? sanitize_text_field($_POST['servientrega_id_client']) : '900917801';
     $wc_main_settings['servientrega_address_sender'] = (isset($_POST['servientrega_address_sender'])) ? sanitize_text_field($_POST['servientrega_address_sender']) : '';
     $wc_main_settings['servientrega_agreement_pay'] = (isset($_POST['servientrega_agreement_pay'])) ? sanitize_text_field($_POST['servientrega_agreement_pay']) : '';
-
 
     servientrega_validate_credentials($test_mode,$servientrega_user,$servientrega_password,$servientrega_billing_code,$servientrega_id_client);
     
@@ -183,7 +184,35 @@ $htmlGeneral .= '
                     endforeach;
                 $htmlGeneral .= '</select>
             </fieldset>
-                    </td>';
+        </td>
+     </tr>';
+     $htmlGeneral .= '<tr valign="top">
+ <td style="width:25%;font-weight:bold;">
+            <label for="servientrega_guide_free_shipping">' . __('Generar guías, envío gratuito') . '</label><span class="woocommerce-help-tip" data-tip="' . __('Permitir generar gúias cuando el costo del envío es gratuito') . '"></span>
+        </td>
+        <td scope="row" class="titledesc" style="display:block;margin-bottom:20px;">
+<fieldset style="padding:3px;">';
+                if(isset($general_settings['servientrega_guide_free_shipping']) && $general_settings['servientrega_guide_free_shipping'] === true)
+                {
+                    $htmlGeneral .= '<input class="input-text regular-input " type="radio" name="servientrega_guide_free_shipping"  id="servientrega_guide_free_shipping" ';
+                    $disable = ($validation === 'done') ? 'disabled="true" ' : ' ';
+                    $htmlGeneral .= $disable;  $htmlGeneral .= 'value="no">' . __('No');
+                    $htmlGeneral .= '<input class="input-text regular-input " type="radio"  name="servientrega_guide_free_shipping" checked="true" id="servientrega_guide_free_shipping" ';
+                    $disable = ($validation === 'done') ? 'disabled="true" ' : ' ';
+                    $htmlGeneral .= $disable; $htmlGeneral .= 'value="yes">' . __('Sí');
+                 }else {
+                    $htmlGeneral .= '<input class="input-text regular-input" type="radio" name="servientrega_guide_free_shipping" checked="true" id="servientrega_guide_free_shipping" ';
+                    $disable = ($validation === 'done') ? 'disabled="true" ' : ' ';
+                    $htmlGeneral .= $disable;
+                    $htmlGeneral .= 'value="no">' . __('No');
+                    $htmlGeneral .= '<input class="input-text regular-input" type="radio" name="servientrega_guide_free_shipping" id="servientrega_guide_free_shipping" ';
+                    $disable = ($validation === 'done') ? 'disabled="true" ' : ' ';
+                    $htmlGeneral .= $disable;
+                    $htmlGeneral .= 'value="yes">' . __('Sí') . '</br></fieldset>';
+                }
+$htmlGeneral .= '</fieldset>
+       </td>
+    </tr>';
     $htmlGeneral .= '<tr>
         <td colspan="2" style="text-align:center;">' .
         wp_nonce_field( "shipping_servientrega_wc_ss_general", "shipping_servientrega_wc_ss_general" ) . '
