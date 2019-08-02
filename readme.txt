@@ -95,6 +95,8 @@ La versión actual esta limitada y requiere uso de licencia, [versión completa]
 * Added product type
 = 3.0.9 =
 * Fixed total valorization shipping
+= 3.0.10 =
+* Fixed when is minuos valorization shipping
 
 == Additional Info ==
 **Contribute** [repository on github](https://github.com/saulmoralespa/shipping-servientrega-wc)

@@ -220,7 +220,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
 
         }
 
-        $data['total_valorization'] = $data['total_valorization'] == 0 ? $total_min_shipping : $data['total_valorization'];
+        $data['total_valorization'] = $data['total_valorization'] < $total_min_shipping ? $total_min_shipping : $data['total_valorization'];
 
         return $data;
     }
