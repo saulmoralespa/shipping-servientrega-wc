@@ -195,6 +195,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         $data['width'] = 0;
         $data['weight'] = 0;
         $data['name_products'] = [];
+        $total_min_shipping = 6000;
 
         foreach ( $items as $item => $values ) {
             $_product_id = $guide ? $values['product_id'] : $values['data']->get_id();
@@ -218,6 +219,8 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             $data['weight'] += $quantity > 1 ? $_product->get_weight() * $quantity : $_product->get_weight();
 
         }
+
+        $data['total_valorization'] = $data['total_valorization'] == 0 ? $total_min_shipping : $data['total_valorization'];
 
         return $data;
     }
