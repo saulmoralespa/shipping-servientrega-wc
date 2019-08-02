@@ -30,6 +30,7 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
         $this->id_client = isset($wc_main_settings['servientrega_id_client']) ? $wc_main_settings['servientrega_id_client'] : '';
         $this->way_pay = isset($wc_main_settings['servientrega_agreement_pay']) ? $wc_main_settings['servientrega_agreement_pay'] : '';
         $this->address_sender = isset($wc_main_settings['servientrega_address_sender']) ? $wc_main_settings['servientrega_address_sender'] : '';
+        $this->servientrega_product_type = isset($wc_main_settings['servientrega_product_type']) ? $wc_main_settings['servientrega_product_type'] : 2;
         $this->rates_servientrega = isset($wc_main_settings['rate']) ? $wc_main_settings['rate'] : [];
 
         $this->supports = array(

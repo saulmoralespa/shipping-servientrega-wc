@@ -64,7 +64,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'Num_Sobreporte' => 0,
             'Num_Piezas' => $this->get_quantity_product($items),
             'Des_TipoTrayecto' => 1, //nacional 2 internacional
-            'Ide_Producto' => 2, //mercancia premier
+            'Ide_Producto' => (int)$instance->servientrega_product_type, //mercancia premier
             'Ide_Destinatarios' => '00000000-0000-0000-0000-000000000000',
             'Ide_Manifiesto' => '00000000-0000-0000-0000-000000000000',
             'Des_FormaPago' => $instance->way_pay, // 2 Crédito 4 contra entrega

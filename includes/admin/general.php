@@ -83,6 +83,7 @@ if(isset($_POST['servientrega_genaral_save_changes_button']))
     $wc_main_settings['servientrega_id_client'] = (isset($_POST['servientrega_id_client'])) ? sanitize_text_field($_POST['servientrega_id_client']) : '900917801';
     $wc_main_settings['servientrega_address_sender'] = (isset($_POST['servientrega_address_sender'])) ? sanitize_text_field($_POST['servientrega_address_sender']) : '';
     $wc_main_settings['servientrega_agreement_pay'] = (isset($_POST['servientrega_agreement_pay'])) ? sanitize_text_field($_POST['servientrega_agreement_pay']) : '';
+    $wc_main_settings['servientrega_product_type'] = (isset($_POST['servientrega_product_type'])) ? sanitize_text_field($_POST['servientrega_product_type']) : '';
 
     servientrega_validate_credentials($test_mode,$servientrega_user,$servientrega_password,$servientrega_billing_code,$servientrega_id_client);
     
@@ -99,6 +100,13 @@ $agreementPay = [
 ];
 
 $address_sender = include dirname(__FILE__) . '/../cities.php';
+
+
+$products_type = [
+    1 => __('Documento unitario'),
+    2 => __('Mercancia premier'),
+    6 => __('Mercancia industrial')
+];
 
 $htmlGeneral = '<img style="float:right;" src="' . shipping_servientrega_wc_ss()->assets . trailingslashit('img') . 'servientrega.png' . '" width="80" height="80" />';
 
@@ -183,6 +191,21 @@ $htmlGeneral .= '
                         $htmlGeneral .= "<option value='{$key}' $selected>{$value}</option>";
                     endforeach;
                 $htmlGeneral .= '</select>
+            </fieldset>
+        </td>
+     </tr>';
+    $htmlGeneral .= '<tr valign="top">
+        <td style="width:25%;font-weight:bold;">
+            <label for="servientrega_product_type">' . __('Tipo de producto') . '</label><span class="woocommerce-help-tip" data-tip="' . __('El tipo de producto por defecto premier') . '"></span>
+        </td>
+        <td scope="row" class="titledesc" style="display: block;margin-bottom: 20px;margin-top: 3px;">
+            <fieldset style="padding:3px;">
+                <select class="wc-enhanced-select" name="servientrega_product_type" id="servientrega_product_type">';
+                    foreach ($products_type as $key => $value):
+                        $selected = isset($general_settings['servientrega_product_type']) && $general_settings['servientrega_product_type'] === (string)$key ? 'selected' : '';
+                        $htmlGeneral .= "<option value='{$key}' $selected>{$value}</option>";
+                    endforeach;
+                    $htmlGeneral .= '</select>
             </fieldset>
         </td>
      </tr>';
