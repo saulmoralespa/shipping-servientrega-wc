@@ -8,8 +8,7 @@ $wc_main_settings = array();
 
 if(isset($_POST['servientrega_rates_save_changes_button']))
 {
-
-    if ( !isset( $_POST['shipping_servientrega_wc_ss_rates'] ) ||
+    if( !isset( $_POST['shipping_servientrega_wc_ss_rates'] ) ||
         !current_user_can('administrator')
         || !wp_verify_nonce( $_POST['shipping_servientrega_wc_ss_rates'], 'shipping_servientrega_wc_ss_rates' ))
         return;
@@ -17,21 +16,21 @@ if(isset($_POST['servientrega_rates_save_changes_button']))
     $wc_main_settings = get_option('woocommerce_servientrega_shipping_settings');
 
     $rateNacional = $_POST['rate']['nacional'];
-    $rateNacional = shipping_servientrega_wc_ss_sanitize($rateNacional);
+    $wc_main_settings['rate']['nacional'] = shipping_servientrega_wc_ss_sanitize($rateNacional);
     $rateZonal = $_POST['rate']['zonal'];
-    $rateZonal = shipping_servientrega_wc_ss_sanitize($rateZonal);
+    $wc_main_settings['rate']['zonal'] = shipping_servientrega_wc_ss_sanitize($rateZonal);
     $rateUrbano = $_POST['rate']['urbano'];
-    $rateUrbano = shipping_servientrega_wc_ss_sanitize($rateUrbano);
+    $wc_main_settings['rate']['urbano'] = shipping_servientrega_wc_ss_sanitize($rateUrbano);
     $rateEspecial = $_POST['rate']['especial'];
-    $rateEspecial = shipping_servientrega_wc_ss_sanitize($rateEspecial);
+    $wc_main_settings['rate']['especial'] = shipping_servientrega_wc_ss_sanitize($rateEspecial);
     $additional = $_POST['rate']['additional'];
-    $additional = shipping_servientrega_wc_ss_sanitize($additional);
+    $wc_main_settings['rate']['additional'] = shipping_servientrega_wc_ss_sanitize($additional);
     $freight = $_POST['rate']['freight'];
     $wc_main_settings['rate']['freight'] = sanitize_text_field($freight);
+    $weight = $_POST['rate']['weight'];
+    $wc_main_settings['rate']['weight'] = shipping_servientrega_wc_ss_sanitize($weight);
 
-    $wc_main_settings = array_merge($wc_main_settings, $rateNacional, $rateZonal, $rateUrbano, $rateEspecial, $additional);
-
-    update_option('woocommerce_servientrega_shipping_settings',$wc_main_settings);
+    update_option('woocommerce_servientrega_shipping_settings', $wc_main_settings);
 
 }
 
@@ -66,8 +65,8 @@ $htmlRates = '
                     </tr>
                 </thead>
                 <tbody>';
-                     if(isset($general_settings['rate']['nacional'])):
-                         for ($i = 0; $i < count($general_settings['rate']['nacional']); $i++ ){
+                     if(isset($general_settings['rate']['weight'])):
+                         for ($i = 0; $i < count($general_settings['rate']['weight']); $i++ ){
                              $action = $i > 0 ? '<td class="remove"><span style="font-size:30px;color:red;cursor:pointer;" class="dashicons dashicons-minus"></span></td>'
                                  : '<td class="add"><span style="font-size:30px;color:green;cursor:pointer;" class="dashicons dashicons-plus-alt""></span></td>';
                              $htmlRates .= '<tr><td><input type="number" name="rate[weight][]" placeholder="3"  min="1" value="' . $general_settings['rate']['weight'][$i].'" size="2"></td>
