@@ -59,6 +59,8 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         $data_products = self::dimensions_weight($items, true);
         $namesProducts = implode(",",  $data_products['name_products']);
 
+        shipping_servientrega_wc_ss()->log($namesProducts);
+
         $params = [
             'Num_Guia' => 0,
             'Num_Sobreporte' => 0,
@@ -80,7 +82,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'Des_Direccion' => $direccion_destinatario,
             'Nom_Contacto' => $nombre_destinatario,
             'Num_ValorLiquidado' => 0, //calculado por el sistem 0 para todos los casos
-            'Des_DiceContener' => $namesProducts, // el contenido del envío
+            'Des_DiceContener' => substr($namesProducts, 0, 50), // el contenido del envío
             'Des_TipoGuia' => 1,
             'Num_VlrSobreflete' => 0,
             'Num_VlrFlete' => 0,
