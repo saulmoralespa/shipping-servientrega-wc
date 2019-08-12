@@ -5,7 +5,7 @@ Tags: commerce, e-commerce, commerce, wordpress ecommerce, store, sales, sell, s
 Requires at least: 5.0
 Tested up to: 5.2
 Requires PHP: 7.1
-Stable tag: 3.0.12
+Stable tag: 3.0.13
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -101,6 +101,8 @@ La versión actual esta limitada y requiere uso de licencia, [versión completa]
 * Fixed save configurations
 = 3.0.12 =
 * Fixed minimum value Des_DiceContener
+= 3.0.13 =
+* Fixed weight product type premier
 
 == Additional Info ==
 **Contribute** [repository on github](https://github.com/saulmoralespa/shipping-servientrega-wc)

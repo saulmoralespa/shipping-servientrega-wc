@@ -71,7 +71,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'Ide_Manifiesto' => '00000000-0000-0000-0000-000000000000',
             'Des_FormaPago' => $instance->way_pay, // 2 Crédito 4 contra entrega
             'Des_MedioTransporte' => 1, // terrestre
-            'Num_PesoTotal' => ceil($data_products['weight']),
+            'Num_PesoTotal' => $this->getWeightEnd($data_products['weight']),
             'Num_ValorDeclaradoTotal' => $data_products['total_valorization'],
             'Num_VolumenTotal' => 0, // para que se calcule
             'Num_BolsaSeguridad' => 0, //solo para valores, de lo contrario 0
@@ -179,6 +179,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
 
         $result = array();
 
+
         if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) !== $table_name )
             return $result;
 
@@ -225,5 +226,18 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         $data['total_valorization'] = $data['total_valorization'] < $total_min_shipping ? $total_min_shipping : $data['total_valorization'];
 
         return $data;
+    }
+
+
+    public function getWeightEnd($weight)
+    {
+        $instance = new self();
+        $weight = ceil($weight);
+
+        if ($instance->servientrega_product_type === '2' && $weight < 3)
+            $weight = 3;
+
+        return $weight;
+
     }
 }

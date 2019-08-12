@@ -25,16 +25,14 @@ if(isset($_POST['servientrega_rates_save_changes_button']))
     $wc_main_settings['rate']['especial'] = shipping_servientrega_wc_ss_sanitize($rateEspecial);
     $additional = $_POST['rate']['additional'];
     $wc_main_settings['rate']['additional'] = shipping_servientrega_wc_ss_sanitize($additional);
-    $freight = $_POST['rate']['freight'];
-    $wc_main_settings['rate']['freight'] = sanitize_text_field($freight);
     $weight = $_POST['rate']['weight'];
     $wc_main_settings['rate']['weight'] = shipping_servientrega_wc_ss_sanitize($weight);
+    $freight = $_POST['rate']['freight'];
+    $wc_main_settings['rate']['freight'] = sanitize_text_field($freight);
 
     update_option('woocommerce_servientrega_shipping_settings', $wc_main_settings);
 
 }
-
-$general_settings = get_option('woocommerce_servientrega_shipping_settings');
 
 function shipping_servientrega_wc_ss_sanitize($rate){
 
@@ -47,6 +45,8 @@ function shipping_servientrega_wc_ss_sanitize($rate){
     return $result;
 
 }
+
+$general_settings = get_option('woocommerce_servientrega_shipping_settings');
 
 $htmlRates = '
 <table>
