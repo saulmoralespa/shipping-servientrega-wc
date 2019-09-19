@@ -211,7 +211,7 @@ $htmlGeneral .= '
      </tr>';
      $htmlGeneral .= '<tr valign="top">
  <td style="width:25%;font-weight:bold;">
-            <label for="servientrega_guide_free_shipping">' . __('Generar guías, envío gratuito') . '</label><span class="woocommerce-help-tip" data-tip="' . __('Permitir generar gúias cuando el costo del envío es gratuito') . '"></span>
+            <label for="servientrega_guide_free_shipping">' . __('Generar guías cuando el envío es gratuito') . '</label><span class="woocommerce-help-tip" data-tip="' . __('Permitir generar gúias cuando el costo del envío es gratuito') . '"></span>
         </td>
         <td scope="row" class="titledesc" style="display:block;margin-bottom:20px;">
 <fieldset style="padding:3px;">';

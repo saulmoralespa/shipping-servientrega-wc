@@ -32,6 +32,23 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             if (!$guide->CargueMasivoExternoResult) return;
 
             $guide_number = $guide->envios->CargueMasivoExternoDTO->objEnvios->EnviosExterno->Num_Guia;
+
+            if ( in_array(
+                'woo-advanced-shipment-tracking/woocommerce-advanced-shipment-tracking.php',
+                apply_filters( 'active_plugins', get_option( 'active_plugins' ) ),
+                true
+            ) ) {
+                if (class_exists('WC_Advanced_Shipment_Tracking_Actions')){
+                    $ast  = new WC_Advanced_Shipment_Tracking_Actions;
+                    $args = array(
+                        'tracking_provider'        => 'servientrega',
+                        'tracking_number'          => $guide_number,
+                        'date_shipped'             => date('Y-m-d')
+                    );
+
+                    $ast->add_tracking_item($order_id, $args);
+                }
+            }
             $guide_url = sprintf( __( 'Servientrega Código de seguimiento <a target="_blank" href="%1$s">' . $guide_number .'</a>.' ), "https://www.servientrega.com/wps/portal/Colombia/transacciones-personas/rastreo-envios/detalle?id=$guide_number" );
             update_post_meta($order_id, 'guide_servientrega', $guide_number);
             $order->add_order_note($guide_url);
@@ -71,7 +88,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'Ide_Manifiesto' => '00000000-0000-0000-0000-000000000000',
             'Des_FormaPago' => $instance->way_pay, // 2 Crédito 4 contra entrega
             'Des_MedioTransporte' => 1, // terrestre
-            'Num_PesoTotal' => $this->getWeightEnd($data_products['weight']),
+            'Num_PesoTotal' => $data_products['weight'],
             'Num_ValorDeclaradoTotal' => $data_products['total_valorization'],
             'Num_VolumenTotal' => 0, // para que se calcule
             'Num_BolsaSeguridad' => 0, //solo para valores, de lo contrario 0
@@ -223,21 +240,14 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
 
         }
 
+        $instance = new self();
+
+        $data['weight'] = ceil($data['weight']);
+        if ($instance->servientrega_product_type === '2' && $data['weight'] < 3)
+            $data['weight'] = 3;
+
         $data['total_valorization'] = $data['total_valorization'] < $total_min_shipping ? $total_min_shipping : $data['total_valorization'];
 
         return $data;
-    }
-
-
-    public function getWeightEnd($weight)
-    {
-        $instance = new self();
-        $weight = ceil($weight);
-
-        if ($instance->servientrega_product_type === '2' && $weight < 3)
-            $weight = 3;
-
-        return $weight;
-
     }
 }
