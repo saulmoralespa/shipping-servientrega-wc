@@ -34,7 +34,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             $guide_number = $guide->envios->CargueMasivoExternoDTO->objEnvios->EnviosExterno->Num_Guia;
 
             if ( in_array(
-                'woo-advanced-shipment-tracking/woocommerce-advanced-shipment-tracking.php',
+                   'woo-advanced-shipment-tracking/woocommerce-advanced-shipment-tracking.php',
                 apply_filters( 'active_plugins', get_option( 'active_plugins' ) ),
                 true
             ) ) {
@@ -54,6 +54,8 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             $order->add_order_note($guide_url);
 
         }
+
+        return apply_filters( 'servientrega_generate_guide', $order_id, $old_status, $new_status, $order );
 
     }
 
