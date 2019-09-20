@@ -81,6 +81,7 @@ return array(
     "169" => "Puerto triunfo - Antioquia",
     "305" => "Remedios - Antioquia",
     "434" => "Retiro - Antioquia",
+    "43" => "Rionegro - Antioquia",
     "7725" => "Sabanalarga - Antioquia",
     "249" => "Sabaneta - Antioquia",
     "306" => "Salgar - Antioquia",
