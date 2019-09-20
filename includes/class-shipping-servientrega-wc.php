@@ -74,11 +74,12 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         $country_code = $order->get_shipping_country() ? $order->get_shipping_country() :  $order->get_billing_country();
         $state_name = self::name_destination($country_code, $state_code);
         $city = $order->get_shipping_city() ? $order->get_shipping_city() : $order->get_billing_city();
+        if ($city === 'Rionegro' && $state_name === 'Antioquia')
+            $city = "$city ($state_code)";
+
         $items = $order->get_items();
         $data_products = self::dimensions_weight($items, true);
         $namesProducts = implode(",",  $data_products['name_products']);
-
-        shipping_servientrega_wc_ss()->log($namesProducts);
 
         $params = [
             'Num_Guia' => 0,
@@ -137,6 +138,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             $resp = $this->servientrega->CargueMasivoExterno($params);
             if ($instance->debug === 'yes') shipping_servientrega_wc_ss()->log($resp);
         }catch (\Exception $exception){
+            shipping_servientrega_wc_ss()->log($params);
             shipping_servientrega_wc_ss()->log($exception->getMessage());
         }
 
