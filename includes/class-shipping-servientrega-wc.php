@@ -59,7 +59,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
 
     }
 
-    public function guide($order)
+    public function guide(WC_Order $order)
     {
 
         $instance = new self();
@@ -148,7 +148,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             shipping_servientrega_wc_ss()->log($exception->getMessage());
         }
 
-        return $resp;
+        return apply_filters( 'servientrega_guide', $resp, $order);
     }
 
     public static  function name_destination($country, $state_destination)
