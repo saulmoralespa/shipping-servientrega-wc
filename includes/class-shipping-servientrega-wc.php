@@ -132,6 +132,12 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'Est_EnviarCorreo' => false
         ];
 
+        if ($instance->num_recaudo){
+            $params['Num_Recaudo'] = $data_products['total_valorization'];
+            $params['Tipo_Doc_Destinatario'] = 'CC';
+            $params['Ide_Num_Identific_Dest'] = get_post_meta( $order->get_id(), '_billing_dni', true );
+        }
+
         $resp = new stdClass;
 
         try{

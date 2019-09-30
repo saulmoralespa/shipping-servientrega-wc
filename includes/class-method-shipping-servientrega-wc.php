@@ -24,6 +24,7 @@ class WC_Shipping_Method_Shipping_Servientrega_WC extends WC_Shipping_Method
         $this->debug = $this->get_option( 'debug' );
         $this->isTest = isset($wc_main_settings['servientrega_production']) ? $wc_main_settings['servientrega_production'] : false;
         $this->guide_free_shipping = isset($wc_main_settings['servientrega_guide_free_shipping']) ? $wc_main_settings['servientrega_guide_free_shipping'] : false;
+        $this->num_recaudo = isset($wc_main_settings['servientrega_num_recaudo']) ? $wc_main_settings['servientrega_num_recaudo'] : false;
         $this->user = isset($wc_main_settings['servientrega_user']) ? $wc_main_settings['servientrega_user'] : '';
         $this->password = isset($wc_main_settings['servientrega_password']) ? $wc_main_settings['servientrega_password'] : '';
         $this->billing_code = isset($wc_main_settings['servientrega_billing_code']) ? $wc_main_settings['servientrega_billing_code'] : '';

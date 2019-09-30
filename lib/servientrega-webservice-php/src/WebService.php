@@ -230,6 +230,8 @@ class WebService
      */
     private static function checkErros($result)
     {
+        if (isset($result->arrayGuias->string) && is_array($result->arrayGuias->string))
+            throw new \Exception(implode(PHP_EOL, $result->arrayGuias->string));
         if (isset($result->arrayGuias->string) && !$result->CargueMasivoExternoResult)
             throw new \Exception($result->arrayGuias->string);
         if (isset($result->AnularGuiasResult) && strpos($result->AnularGuiasResult, 'Debe Autenticarse') !== false)

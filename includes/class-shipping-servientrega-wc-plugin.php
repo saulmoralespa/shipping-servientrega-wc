@@ -100,6 +100,7 @@ class Shipping_Servientrega_WC_Plugin
         add_action( 'woocommerce_process_product_meta', array($this, 'save_custom_shipping_option_to_products') );
         add_action( 'admin_enqueue_scripts', array($this, 'enqueue_scripts_admin') );
         add_action( 'wp_ajax_servientrega_shipping_matriz',array($this, 'servientrega_shipping_matriz'));
+        add_filter( 'woocommerce_billing_fields', array($this, 'custom_woocommerce_billing_fields'));
     }
 
     public function plugin_action_links($links)
@@ -267,6 +268,25 @@ class Shipping_Servientrega_WC_Plugin
         update_option('woocommerce_servientrega_shipping_settings', $wc_main_settings);
 
         wp_send_json($result);
+
+    }
+
+    public function custom_woocommerce_billing_fields($fields)
+    {
+        $wc_main_settings = get_option('woocommerce_servientrega_shipping_settings');
+        $num_recaudo = isset($wc_main_settings['servientrega_num_recaudo']) ? $wc_main_settings['servientrega_num_recaudo'] : false;
+
+        if ($num_recaudo){
+            $fields['billing_dni'] = array(
+                'label' => __('Número de cédula'),
+                'placeholder' => _x('Su número de cédula....', 'placeholder'),
+                'required' => true,
+                'clear' => false,
+                'type' => 'number'
+            );
+        }
+
+        return $fields;
 
     }
 
