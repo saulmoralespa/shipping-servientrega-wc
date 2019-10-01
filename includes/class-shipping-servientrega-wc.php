@@ -133,9 +133,9 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         ];
 
         if ($instance->num_recaudo){
-            $params['Num_Recaudo'] = $data_products['total_valorization'];
+            $params['Num_Recaudo'] = $order->get_total();
             $params['Tipo_Doc_Destinatario'] = 'CC';
-            $params['Ide_Num_Identific_Dest'] = get_post_meta( $order->get_id(), '_billing_dni', true );
+            $params['Ide_Num_Identific_Dest'] = get_post_meta( $order->get_id(), '_billing_identificacion', true );
         }
 
         $resp = new stdClass;

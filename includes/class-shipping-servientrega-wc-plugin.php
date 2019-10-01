@@ -276,8 +276,8 @@ class Shipping_Servientrega_WC_Plugin
         $wc_main_settings = get_option('woocommerce_servientrega_shipping_settings');
         $num_recaudo = isset($wc_main_settings['servientrega_num_recaudo']) ? $wc_main_settings['servientrega_num_recaudo'] : false;
 
-        if ($num_recaudo){
-            $fields['billing_dni'] = array(
+        if ($num_recaudo && !isset($fields['billing_identificacion'])){
+            $fields['billing_identificacion'] = array(
                 'label' => __('Número de cédula'),
                 'placeholder' => _x('Su número de cédula....', 'placeholder'),
                 'required' => true,
