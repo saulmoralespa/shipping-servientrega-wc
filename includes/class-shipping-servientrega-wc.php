@@ -79,7 +79,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
 
         $items = $order->get_items();
         $data_products = self::dimensions_weight($items, true);
-        $namesProducts = implode(",",  $data_products['name_products']);
+        $namesProducts = implode(" ",  $data_products['name_products']);
 
         $params = [
             'Num_Guia' => 0,
@@ -231,17 +231,16 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             $_product_id = $guide ? $values['product_id'] : $values['data']->get_id();
             $_product = wc_get_product( $_product_id );
 
-            if ( !$_product->get_weight() || !$_product->get_length()
-                || !$_product->get_width() || !$_product->get_height() )
-                break;
-
             $data['name_products'][] = $_product->get_name();
-
             $custom_price_product = get_post_meta($_product_id, '_shipping_custom_price_product_smp', true);
             $data['total_valorization'] += $custom_price_product ? $custom_price_product : $_product->get_price();
 
             $quantity = $values['quantity'];
             $data['total_valorization'] = $data['total_valorization'] * $quantity;
+
+            if ( !$_product->get_weight() || !$_product->get_length()
+                || !$_product->get_width() || !$_product->get_height() )
+                break;
 
             $data['high'] += $quantity > 1 ? $_product->get_height() * $quantity : $_product->get_height();
             $data['length'] += (int)$_product->get_length();
