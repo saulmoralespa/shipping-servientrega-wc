@@ -12,19 +12,42 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         $this->servientrega = new WebService($this->user, $this->password, $this->billing_code, $this->id_client, get_bloginfo('name'));
     }
 
-    public static function generate_guide($order_id, $old_status, $new_status, $order)
+    public static function generate_guide($order_id, $old_status, $new_status, WC_Order $order)
     {
+        $sub_orders = get_children( array( 'post_parent' => $order_id, 'post_type' => 'shop_order' ) );
+
+        if ( $sub_orders ) {
+            foreach ($sub_orders as $sub) {
+                $order = new WC_Order( $sub->ID );
+                $order_item = $order->get_items();
+
+                foreach( $order_item as $item_id => $product ) {
+                    $seller = get_user_by( 'id', $product->post->post_author );
+                }
+
+                self::exec_guide($order, $new_status, $seller);
+            }
+        }else{
+            self::exec_guide($order, $new_status);
+        }
+
+        return apply_filters( 'servientrega_generate_guide', $order_id, $old_status, $new_status, $order );
+
+    }
+
+
+    public static function exec_guide(WC_Order $order, $new_status, $seller = null)
+    {
+        $guide_servientrega = get_post_meta($order->get_id(), 'guide_servientrega', true);
         $instance = new self();
 
-        $guide_servientrega = get_post_meta($order_id, 'guide_servientrega', true);
-
         if (($order->has_shipping_method($instance->id) ||
-                $order->get_total_shipping() == 0 &&
+                $order->get_shipping_total() == 0 &&
                 $instance->guide_free_shipping) &&
-                empty($guide_servientrega) &&
-                $new_status === 'processing'){
+            empty($guide_servientrega) &&
+            $new_status === 'processing'){
 
-            $guide = $instance->guide($order);
+            $guide = $instance->guide($order, $seller);
 
             if ($guide == new stdClass())
                 return;
@@ -34,7 +57,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             $guide_number = $guide->envios->CargueMasivoExternoDTO->objEnvios->EnviosExterno->Num_Guia;
 
             if ( in_array(
-                   'woo-advanced-shipment-tracking/woocommerce-advanced-shipment-tracking.php',
+                'woo-advanced-shipment-tracking/woocommerce-advanced-shipment-tracking.php',
                 apply_filters( 'active_plugins', get_option( 'active_plugins' ) ),
                 true
             ) ) {
@@ -46,20 +69,16 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
                         'date_shipped'             => date('Y-m-d')
                     );
 
-                    $ast->add_tracking_item($order_id, $args);
+                    $ast->add_tracking_item($order->get_id(), $args);
                 }
             }
             $guide_url = sprintf( __( 'Servientrega Código de seguimiento <a target="_blank" href="%1$s">' . $guide_number .'</a>.' ), "https://www.servientrega.com/wps/portal/Colombia/transacciones-personas/rastreo-envios/detalle?id=$guide_number" );
-            update_post_meta($order_id, 'guide_servientrega', $guide_number);
+            update_post_meta($order->get_id(), 'guide_servientrega', $guide_number);
             $order->add_order_note($guide_url);
-
         }
-
-        return apply_filters( 'servientrega_generate_guide', $order_id, $old_status, $new_status, $order );
-
     }
 
-    public function guide(WC_Order $order)
+    public function guide(WC_Order $order, $seller = null)
     {
 
         $instance = new self();
@@ -111,10 +130,10 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'idePaisOrigen' => 1, // 1 Colombia
             'idePaisDestino' => 1, // 1 Colombia
             'Des_IdArchivoOrigen' => 0, // para tos los casos
-            'Des_DireccionRemitente' => '',
+            'Des_DireccionRemitente' => isset($seller) ? "{$seller['street_1']}  {$seller['street_2']}" : '',
             'Est_CanalMayorista' => false,
             'Num_IdentiRemitente' => '',
-            'Num_TelefonoRemitente' => '',
+            'Num_TelefonoRemitente' => $seller['phone'] ?? '',
             'Num_Alto' => $data_products['high'],
             'Num_Ancho' => $data_products['width'],
             'Num_Largo' => $data_products['length'],

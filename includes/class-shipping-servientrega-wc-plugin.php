@@ -219,7 +219,7 @@ class Shipping_Servientrega_WC_Plugin
             wp_send_json($result);
 
         try{
-            $reader = new PhpOffice\PhpSpreadsheet\Reader\Xls();
+            $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xls();
             $spreadsheet = $reader->load($pathXLS);
             $rows = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
             $data = array_shift($rows);
