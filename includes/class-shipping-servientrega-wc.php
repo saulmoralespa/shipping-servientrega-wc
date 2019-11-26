@@ -117,6 +117,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'Num_Precinto' => 0,
             'Des_TipoDuracionTrayecto' => 1, //1 normal
             'Des_Telefono' => $order->get_billing_phone(),
+            'Des_DepartamentoDestino' => $state_name,
             'Des_Ciudad' => $city,
             'Des_Direccion' => $direccion_destinatario,
             'Nom_Contacto' => $nombre_destinatario,
@@ -130,15 +131,15 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'idePaisOrigen' => 1, // 1 Colombia
             'idePaisDestino' => 1, // 1 Colombia
             'Des_IdArchivoOrigen' => 0, // para tos los casos
+            'Des_DepartamentoOrigen' => $store_info['address']['state'] ?? '',
+            'Des_CiudadRemitente' => $store_info['address']['city'] ?? '',
             'Des_DireccionRemitente' => isset($seller) ? "{$seller['street_1']}  {$seller['street_2']}" : '',
+            'Num_TelefonoRemitente' => $seller['phone'] ?? '',
             'Est_CanalMayorista' => false,
             'Num_IdentiRemitente' => '',
-            'Num_TelefonoRemitente' => $seller['phone'] ?? '',
             'Num_Alto' => $data_products['high'],
             'Num_Ancho' => $data_products['width'],
             'Num_Largo' => $data_products['length'],
-            'Des_DepartamentoDestino' => $state_name,
-            'Des_DepartamentoOrigen' => '',
             'Gen_Cajaporte' => 0,
             'Gen_Sobreporte' => 0,
             'Nom_UnidadEmpaque' => 'GENERICA',
