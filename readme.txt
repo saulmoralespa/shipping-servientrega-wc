@@ -127,6 +127,8 @@ La versión actual esta limitada y requiere uso de licencia, [versión completa]
 * Updated compatible with dokan
 = 3.0.25 =
 * Added other sender parameters
+= 3.0.26 =
+* Fixed dokan address
 
 == Additional Info ==
 **Contribute** [repository on github](https://github.com/saulmoralespa/shipping-servientrega-wc)

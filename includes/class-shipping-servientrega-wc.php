@@ -19,13 +19,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         if ( $sub_orders ) {
             foreach ($sub_orders as $sub) {
                 $order = new WC_Order( $sub->ID );
-                $order_item = $order->get_items();
-
-                foreach( $order_item as $item_id => $product ) {
-                    $seller = get_user_by( 'id', $product->post->post_author );
-                }
-
-                self::exec_guide($order, $new_status, $seller);
+                self::exec_guide($order, $new_status);
             }
         }else{
             self::exec_guide($order, $new_status);
@@ -35,8 +29,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
 
     }
 
-
-    public static function exec_guide(WC_Order $order, $new_status, $seller = null)
+    public static function exec_guide(WC_Order $order, $new_status)
     {
         $guide_servientrega = get_post_meta($order->get_id(), 'guide_servientrega', true);
         $instance = new self();
@@ -47,7 +40,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             empty($guide_servientrega) &&
             $new_status === 'processing'){
 
-            $guide = $instance->guide($order, $seller);
+            $guide = $instance->guide($order);
 
             if ($guide == new stdClass())
                 return;
@@ -78,8 +71,9 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         }
     }
 
-    public function guide(WC_Order $order, $seller = null)
+    public function guide(WC_Order $order)
     {
+        $seller = self::getIsSeller($order);
 
         $instance = new self();
 
@@ -91,10 +85,16 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             " " . $order->get_billing_address_2();
         $state_code = $order->get_shipping_state() ? $order->get_shipping_state() : $order->get_billing_state();
         $country_code = $order->get_shipping_country() ? $order->get_shipping_country() :  $order->get_billing_country();
-        $state_name = self::name_destination($country_code, $state_code);
+        $destination_state_name = self::name_destination($country_code, $state_code);
+        $origin_state_name = isset($seller['address']['state']) ? self::name_destination($country_code, $seller['address']['state']) : '';
+        $origin_city = $seller['address']['city'] ?? '';
+
         $city = $order->get_shipping_city() ? $order->get_shipping_city() : $order->get_billing_city();
-        if ($city === 'Rionegro' && $state_name === 'Antioquia')
+        if ($city === 'Rionegro' && $destination_state_name === 'Antioquia')
             $city = "$city ($state_code)";
+
+        if ($origin_city === 'Rionegro' && $origin_state_name === 'Antioquia')
+            $origin_city = "$origin_city ANT";
 
         $items = $order->get_items();
         $data_products = self::dimensions_weight($items, true);
@@ -117,7 +117,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'Num_Precinto' => 0,
             'Des_TipoDuracionTrayecto' => 1, //1 normal
             'Des_Telefono' => $order->get_billing_phone(),
-            'Des_DepartamentoDestino' => $state_name,
+            'Des_DepartamentoDestino' => $destination_state_name,
             'Des_Ciudad' => $city,
             'Des_Direccion' => $direccion_destinatario,
             'Nom_Contacto' => $nombre_destinatario,
@@ -131,9 +131,9 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'idePaisOrigen' => 1, // 1 Colombia
             'idePaisDestino' => 1, // 1 Colombia
             'Des_IdArchivoOrigen' => 0, // para tos los casos
-            'Des_DepartamentoOrigen' => $store_info['address']['state'] ?? '',
-            'Des_CiudadRemitente' => $store_info['address']['city'] ?? '',
-            'Des_DireccionRemitente' => isset($seller) ? "{$seller['street_1']}  {$seller['street_2']}" : '',
+            'Des_DepartamentoOrigen' => $origin_state_name,
+            'Des_CiudadRemitente' => $origin_city,
+            'Des_DireccionRemitente' => isset($seller['address']) ? "{$seller['address']['street_1']}  {$seller['address']['street_2']}" : '',
             'Num_TelefonoRemitente' => $seller['phone'] ?? '',
             'Est_CanalMayorista' => false,
             'Num_IdentiRemitente' => '',
@@ -278,5 +278,13 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         $data['total_valorization'] = $data['total_valorization'] < $total_min_shipping ? $total_min_shipping : $data['total_valorization'];
 
         return apply_filters( 'servientrega_dimensions_weight', $data, $items, $guide );
+    }
+
+    public static function getIsSeller(WC_Order $order)
+    {
+        $dokan_vendor_id = get_post_meta( $order->get_id(), '_dokan_vendor_id', true );
+
+        return $dokan_vendor_id ? dokan_get_store_info($dokan_vendor_id) : null;
+
     }
 }
