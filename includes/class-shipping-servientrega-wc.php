@@ -152,10 +152,12 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'Est_EnviarCorreo' => false
         ];
 
+        $order_id_origin = $order->get_parent_id() > 0 ? $order->get_parent_id() : $order->get_id();
+
         if ($instance->num_recaudo){
             $params['Num_Recaudo'] = $order->get_total();
             $params['Tipo_Doc_Destinatario'] = 'CC';
-            $params['Ide_Num_Identific_Dest'] = get_post_meta( $order->get_id(), '_billing_identificacion', true );
+            $params['Ide_Num_Identific_Dest'] = get_post_meta( $order_id_origin, '_billing_identificacion', true );
         }
 
         $resp = new stdClass;
