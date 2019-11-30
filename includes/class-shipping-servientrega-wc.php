@@ -91,11 +91,13 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         $destination_state_name = self::name_destination($country_code, $state_code);
         $origin_state_name = isset($seller['address']['state']) ? self::name_destination($country_code, $seller['address']['state']) : '';
         $origin_city = $seller['address']['city'] ?? '';
+        $origin_city = $this->clean_city($origin_city);
 
         $city = $order->get_shipping_city() ? $order->get_shipping_city() : $order->get_billing_city();
-        if ($city === 'Rionegro' && $destination_state_name === 'Antioquia')
-            $city = "$city ($state_code)";
+        $city = $this->clean_city($city);
 
+        if ($city === 'Rionegro' && $destination_state_name === 'Antioquia')
+            $city = "$city (ANT)";
         if ($origin_city === 'Rionegro' && $origin_state_name === 'Antioquia')
             $origin_city = "$origin_city (ANT)";
 
@@ -296,5 +298,10 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
     public static function get_parent_id(WC_Order $order)
     {
         return $order->get_parent_id() > 0 ? $order->get_parent_id() : $order->get_id();
+    }
+
+    public function clean_city($city)
+    {
+        Return $city == 'Bogotá D.C' ? 'Bogotá' : $city;
     }
 }
