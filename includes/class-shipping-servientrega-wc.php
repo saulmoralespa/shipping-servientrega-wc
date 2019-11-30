@@ -18,7 +18,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
 
         if ( $sub_orders ) {
             foreach ($sub_orders as $sub) {
-                $order = new WC_Order( $sub->ID );
+                $order = new WC_Order($sub->ID);
                 self::exec_guide($order, $new_status);
             }
         }else{
@@ -34,8 +34,11 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
         $guide_servientrega = get_post_meta($order->get_id(), 'guide_servientrega', true);
         $instance = new self();
 
-        if (($order->has_shipping_method($instance->id) ||
-                $order->get_shipping_total() == 0 &&
+        $order_id_origin = self::get_parent_id($order);
+        $order_parent = new WC_Order($order_id_origin);
+
+        if (($order_parent->has_shipping_method($instance->id) ||
+                $order_parent->get_shipping_total() == 0 &&
                 $instance->guide_free_shipping) &&
             empty($guide_servientrega) &&
             $new_status === 'processing'){
@@ -94,7 +97,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             $city = "$city ($state_code)";
 
         if ($origin_city === 'Rionegro' && $origin_state_name === 'Antioquia')
-            $origin_city = "$origin_city ANT";
+            $origin_city = "$origin_city (ANT)";
 
         $items = $order->get_items();
         $data_products = self::dimensions_weight($items, true);
@@ -152,7 +155,7 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
             'Est_EnviarCorreo' => false
         ];
 
-        $order_id_origin = $order->get_parent_id() > 0 ? $order->get_parent_id() : $order->get_id();
+        $order_id_origin = self::get_parent_id($order);
 
         if ($instance->num_recaudo){
             $params['Num_Recaudo'] = $order->get_total();
@@ -288,5 +291,10 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
 
         return $dokan_vendor_id ? dokan_get_store_info($dokan_vendor_id) : null;
 
+    }
+
+    public static function get_parent_id(WC_Order $order)
+    {
+        return $order->get_parent_id() > 0 ? $order->get_parent_id() : $order->get_id();
     }
 }
