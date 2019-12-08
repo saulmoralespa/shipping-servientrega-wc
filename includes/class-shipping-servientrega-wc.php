@@ -304,4 +304,27 @@ class Shipping_Servientrega_WC extends WC_Shipping_Method_Shipping_Servientrega_
     {
         Return $city == 'Bogotá D.C' ? 'Bogotá' : $city;
     }
+
+    public static function generate_stickers($guide_number)
+    {
+        $params = [
+            'num_Guia' => $guide_number,
+            'num_GuiaFinal' => $guide_number,
+            'sFormatoImpresionGuia' => 2,
+            'Id_ArchivoCargar' => '0',
+            'interno' => false
+        ];
+
+        $instance = new self();
+        $sticker = array();
+
+        try{
+            $sticker = $instance->servientrega->GenerarGuiaSticker($params);
+        }catch (\Exception $exception){
+            shipping_servientrega_wc_ss()->log($params);
+            shipping_servientrega_wc_ss()->log($exception->getMessage());
+        }
+
+        return $sticker;
+    }
 }

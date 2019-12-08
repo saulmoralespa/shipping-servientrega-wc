@@ -5,7 +5,7 @@ Tags: commerce, e-commerce, commerce, wordpress ecommerce, store, sales, sell, s
 Requires at least: 5.0
 Tested up to: 5.3
 Requires PHP: 7.1
-Stable tag: 3.0.29
+Stable tag: 3.0.30
 License: GNU General Public License v3.0
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -58,6 +58,7 @@ La versión actual esta limitada y requiere uso de licencia, [versión completa]
 4. Añadir método de envío Servientrega en zonas de envíos screenshot-4.png
 5. Configurar producto con dimensiones, peros y opcional valor declarador del producto screenshot-5.png
 6. Cotización costo del envío en funcion screenshot-6.png
+7. Generar stickers de la guía screenshot-7.png
 
 == Changelog ==
 
@@ -135,6 +136,8 @@ La versión actual esta limitada y requiere uso de licencia, [versión completa]
 * Fixed parent order for shipping method
 = 3.0.29 =
 * Updated clean city
+= 3.0.30 =
+* Added generate stickers
 
 == Additional Info ==
 **Contribute** [repository on github](https://github.com/saulmoralespa/shipping-servientrega-wc)

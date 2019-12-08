@@ -96,11 +96,14 @@ class Shipping_Servientrega_WC_Plugin
     
         add_filter( 'plugin_action_links_' . plugin_basename( $this->file), array( $this, 'plugin_action_links' ) );
         add_filter( 'woocommerce_shipping_methods', array( $this, 'shipping_servientrega_wc_add_method') );
+        add_filter( 'woocommerce_billing_fields', array($this, 'custom_woocommerce_billing_fields'));
+        add_filter( 'manage_edit-shop_order_columns', array($this, 'print_guide'), 20 );
         add_action( 'woocommerce_order_status_changed', array('Shipping_Servientrega_WC', 'generate_guide'), 20, 4 );
         add_action( 'woocommerce_process_product_meta', array($this, 'save_custom_shipping_option_to_products') );
         add_action( 'admin_enqueue_scripts', array($this, 'enqueue_scripts_admin') );
-        add_action( 'wp_ajax_servientrega_shipping_matriz',array($this, 'servientrega_shipping_matriz'));
-        add_filter( 'woocommerce_billing_fields', array($this, 'custom_woocommerce_billing_fields'));
+        add_action( 'wp_ajax_servientrega_shipping_matriz', array($this, 'servientrega_shipping_matriz'));
+        add_action( 'wp_ajax_servientrega_generate_sticker', array($this, 'servientrega_generate_sticker'));
+        add_action( 'manage_shop_order_posts_custom_column', array($this, 'content_column_print_guide'), 2 );
     }
 
     public function plugin_action_links($links)
@@ -170,10 +173,10 @@ class Shipping_Servientrega_WC_Plugin
 
     public function enqueue_scripts_admin($hook)
     {
-        if ($hook !== 'woocommerce_page_wc-settings') return;
-
-        wp_enqueue_script( 'shipping_servientrega_wc_ss', $this->plugin_url. 'assets/js/config.js', array( 'jquery' ), $this->version, true );
-        wp_enqueue_script( 'shipping_servientrega_wc_ss_sweet_alert', $this->plugin_url. 'assets/js/sweetalert2.js', array( 'jquery' ), $this->version, true );
+        if ($hook === 'woocommerce_page_wc-settings' || $hook === 'edit.php'){
+            wp_enqueue_script( 'shipping_servientrega_wc_ss', $this->plugin_url. 'assets/js/config.js', array( 'jquery' ), $this->version, true );
+            wp_enqueue_script( 'shipping_servientrega_wc_ss_sweet_alert', $this->plugin_url. 'assets/js/sweetalert2.js', array( 'jquery' ), $this->version, true );
+        }
     }
 
     public function servientrega_shipping_matriz()
@@ -356,5 +359,55 @@ class Shipping_Servientrega_WC_Plugin
         }
 
         return $word;
+    }
+
+    public function print_guide($columns)
+    {
+
+        $columns['generate_sticker'] = 'Generar Sticker Servientrega';
+        return $columns;
+    }
+
+    public function content_column_print_guide($column)
+    {
+        global $post;
+
+        $order = new WC_Order($post->ID);
+
+        $order_id_origin = $order->get_parent_id() > 0 ? $order->get_parent_id() : $order->get_id();
+
+        $guide_servientrega = get_post_meta($order->get_id(), 'guide_servientrega', true);
+
+        if(!empty($guide_servientrega) && $column == 'generate_sticker' ){
+            echo "<button class='button-secondary generate_sticker' data-guide='".$guide_servientrega."' data-nonce='".wp_create_nonce( "shipping_servientrega_generate_sticker") ."'>Generar stickers</button>";
+        }
+    }
+
+    public function servientrega_generate_sticker()
+    {
+        if ( ! wp_verify_nonce(  $_REQUEST['nonce'], 'shipping_servientrega_generate_sticker' ) )
+            return;
+
+        $guide_number = $_REQUEST['guide_number'];
+        $sticker = Shipping_Servientrega_WC::generate_stickers($guide_number);
+
+        $upload_dir = wp_upload_dir();
+        $dir = $upload_dir['basedir'] . '/servientrega-stickers/';
+
+        if (!is_dir($dir))
+            mkdir($dir,0755);
+
+        if(isset($sticker->GenerarGuiaStickerResult) && !$sticker->GenerarGuiaStickerResult)
+            wp_send_json(['status' => false, 'message' => 'Se ha alacanzado el limite de generación de stcikers']);
+
+        if (empty($sticker))
+            wp_send_json(['status' => false, 'message' => 'Ha surgido un error interno al intentar generar los stickers']);
+
+        $sticker_file = file_put_contents("{$dir}$guide_number.pdf", $sticker->bytesReport);
+
+        if ($sticker_file){
+            $guide_number_url = $upload_dir['baseurl'] . '/servientrega-stickers/' . "$guide_number.pdf";
+            wp_send_json(['status' => true, 'url' => $guide_number_url]);
+        }
     }
 }
